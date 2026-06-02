@@ -457,6 +457,40 @@ export function BolaoGroupDetailPage() {
               </motion.div>
             ))}
 
+            {/* Prize positions */}
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.36 }}
+              className="rounded-2xl bg-linear-to-br from-slate-800 to-slate-900 p-4 shadow-md space-y-3"
+            >
+              <p className="text-white text-sm font-bold flex items-center gap-2">
+                🏅 Premiação
+              </p>
+              <div className="flex gap-3">
+                {[
+                  { pos: '1º', emoji: '🥇', label: 'Primeiro lugar', color: 'from-amber-400 to-yellow-500', shadow: 'shadow-amber-400/30' },
+                  { pos: '2º', emoji: '🥈', label: 'Segundo lugar', color: 'from-slate-400 to-slate-500', shadow: 'shadow-slate-400/30' },
+                ].map(({ pos, emoji, label, color, shadow }, i) => (
+                  <motion.div
+                    key={pos}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.42 + i * 0.08, type: 'spring', stiffness: 350, damping: 22 }}
+                    className={`flex-1 flex flex-col items-center gap-1.5 rounded-xl bg-linear-to-br ${color} p-3 shadow-lg ${shadow}`}
+                  >
+                    <span className="text-2xl">{emoji}</span>
+                    <span className="text-white font-black text-base leading-none">{pos}</span>
+                    <span className="text-white/80 text-[10px] font-semibold text-center leading-tight">{label}</span>
+                  </motion.div>
+                ))}
+              </div>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Apenas o <span className="text-amber-400 font-semibold">1º</span> e o{' '}
+                <span className="text-slate-300 font-semibold">2º</span> colocados ao final do torneio receberão premiação.
+              </p>
+            </motion.div>
+
             {/* Tie / prize split notice */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
