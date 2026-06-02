@@ -55,6 +55,7 @@ export function usePushNotification() {
       });
 
       setIsSubscribed(true);
+      notificationsApi.welcome().catch(() => {});
     } catch (e) {
       console.error('Push subscription failed', e);
     } finally {

@@ -11,4 +11,5 @@ export const notificationsApi = {
   }) => api.post('/api/notifications/subscribe', data),
   unsubscribe: (endpoint: string) =>
     api.delete('/api/notifications/unsubscribe', { params: { endpoint } }),
+  welcome: () => api.post('/api/notifications/welcome'),
 };
