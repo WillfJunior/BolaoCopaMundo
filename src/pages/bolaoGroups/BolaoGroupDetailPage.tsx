@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { ArrowLeft, LogOut, Trash2, Loader2, CheckCircle, X, Clock } from 'lucide-react';
@@ -28,10 +28,15 @@ const TABS: { key: Tab; label: string; emoji: string }[] = [
 export function BolaoGroupDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const qc = useQueryClient();
   const userId = useAuthStore((s) => s.user?.id);
   const setActiveGroup = useGroupStore((s) => s.setActiveGroup);
-  const [tab, setTab] = useState<Tab>('ranking');
+
+  const VALID_TABS = new Set<Tab>(['ranking', 'matches', 'members', 'invite', 'rules']);
+  const rawTab = searchParams.get('tab') as Tab | null;
+  const tab: Tab = rawTab && VALID_TABS.has(rawTab) ? rawTab : 'ranking';
+  const setTab = (t: Tab) => setSearchParams({ tab: t }, { replace: true });
 
   const { data: group, isLoading } = useQuery({
     queryKey: queryKeys.bolaoGroup(id!),
