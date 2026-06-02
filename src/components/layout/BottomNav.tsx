@@ -46,7 +46,7 @@ export function BottomNav() {
   const hasLive = upcoming?.some((m) => m.status === MatchStatus.InProgress) ?? false;
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-40 glass border-t border-white/70 pb-safe">
+    <nav className="fixed bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] pb-safe">
       <div className="max-w-2xl mx-auto flex items-stretch h-16">
         {NAV_ITEMS.map(({ to, icon: Icon, label, exact, badgeKey }) => {
           const badge = badgeKey === 'unpredicted' ? unpredicted : 0;
