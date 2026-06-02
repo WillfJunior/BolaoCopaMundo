@@ -457,11 +457,35 @@ export function BolaoGroupDetailPage() {
               </motion.div>
             ))}
 
-            {/* Timing notice */}
+            {/* Tie / prize split notice */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.36 }}
+              className="flex items-start gap-3 rounded-2xl bg-linear-to-r from-amber-50 to-yellow-50 border border-amber-200 p-4 shadow-sm"
+            >
+              <motion.span
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ delay: 0.7, duration: 0.5, repeat: Infinity, repeatDelay: 3.5 }}
+                className="text-xl shrink-0 mt-0.5"
+              >
+                🤝
+              </motion.span>
+              <div>
+                <p className="text-amber-800 text-sm font-bold">Empate no ranking</p>
+                <p className="text-amber-700 text-xs mt-1 leading-relaxed">
+                  Se dois ou mais jogadores terminarem com a mesma pontuação, o{' '}
+                  <span className="font-semibold">prêmio será dividido</span>{' '}
+                  igualmente entre os empatados.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Timing notice */}
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.44 }}
               className="flex items-start gap-3 rounded-2xl bg-slate-800 p-4 shadow-md"
             >
               <motion.span
