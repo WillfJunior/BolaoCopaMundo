@@ -1,13 +1,14 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Target, ChevronRight } from 'lucide-react';
+import { Target, ChevronRight, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { predictionsApi } from '../../api/predictions';
 import { groupsApi } from '../../api/groups';
 import { queryKeys, type PredictionDto, type MatchDto, MatchStatus } from '../../types/api';
 import { ScoreBadge } from '../../components/match/ScoreBadge';
 import { formatMatchDate, getImageUrl, computePoints } from '../../utils/formatters';
+import { useGroupStore } from '../../store/groupStore';
 
 type Filter = 'all' | 'exact' | 'partial' | 'miss' | 'pending';
 
@@ -41,12 +42,15 @@ function getEffective(p: PredictionDto, match: MatchDto | null) {
 
 export function MyPredictionsPage() {
   const [filter, setFilter] = useState<Filter>('all');
+  const activeGroupId = useGroupStore((s) => s.activeGroupId);
+  const groupName = useGroupStore((s) => s.activeGroupName);
 
   const { data: predictions, isLoading } = useQuery({
-    queryKey: queryKeys.predictions,
-    queryFn: predictionsApi.list,
+    queryKey: queryKeys.predictions(activeGroupId ?? ''),
+    queryFn: () => predictionsApi.list(activeGroupId!),
     staleTime: 60_000,
-    refetchInterval: 2 * 60_000, // picks up backend processing every 2 min
+    refetchInterval: 2 * 60_000,
+    enabled: !!activeGroupId,
   });
 
   const { data: groups } = useQuery({
@@ -86,6 +90,26 @@ export function MyPredictionsPage() {
   const exactCount  = enriched.filter((e) => e.resolved && e.points === 3).length;
   const partial     = enriched.filter((e) => e.resolved && e.points === 1).length;
 
+  if (!activeGroupId) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-16 flex flex-col items-center gap-4 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center">
+          <Users size={28} className="text-slate-400" />
+        </div>
+        <div>
+          <p className="font-bold text-slate-700">Nenhum grupo selecionado</p>
+          <p className="text-sm text-slate-400 mt-1">Acesse um grupo para ver seus palpites.</p>
+        </div>
+        <Link
+          to="/meus-grupos"
+          className="px-5 py-2.5 rounded-xl bg-green-600 text-white text-sm font-semibold shadow-md shadow-green-200 hover:bg-green-700 transition-colors"
+        >
+          Ir para Meus Grupos →
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-4 pb-24 space-y-5">
       {/* Header */}
@@ -95,7 +119,7 @@ export function MyPredictionsPage() {
         </div>
         <div>
           <h1 className="text-lg font-black text-slate-800">Meus Palpites</h1>
-          <p className="text-xs text-slate-400">{total} palpites feitos</p>
+          <p className="text-xs text-slate-400">{groupName} · {total} palpites</p>
         </div>
       </div>
 

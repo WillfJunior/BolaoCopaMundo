@@ -1,22 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { ArrowLeft, LogOut, Trash2, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { bolaoGroupsApi } from '../../api/bolaoGroups';
-import { queryKeys, MemberRole } from '../../types/api';
+import { groupsApi } from '../../api/groups';
+import { predictionsApi } from '../../api/predictions';
+import { queryKeys, MemberRole, MatchStatus } from '../../types/api';
 import { useAuthStore } from '../../store/authStore';
+import { useGroupStore } from '../../store/groupStore';
 import { RankingRow } from '../../components/ranking/RankingRow';
 import { MemberRow } from '../../components/bolaoGroup/MemberRow';
 import { InviteCard } from '../../components/bolaoGroup/InviteCard';
+import { MatchCard } from '../../components/match/MatchCard';
 
-type Tab = 'ranking' | 'members' | 'invite';
+type Tab = 'ranking' | 'matches' | 'members' | 'invite';
 
 const TABS: { key: Tab; label: string; emoji: string }[] = [
-  { key: 'ranking', label: 'Ranking', emoji: '🏆' },
-  { key: 'members', label: 'Membros', emoji: '👥' },
-  { key: 'invite', label: 'Convidar', emoji: '🔗' },
+  { key: 'ranking', label: 'Ranking',  emoji: '🏆' },
+  { key: 'matches', label: 'Jogos',    emoji: '⚽' },
+  { key: 'members', label: 'Membros',  emoji: '👥' },
+  { key: 'invite',  label: 'Convidar', emoji: '🔗' },
 ];
 
 export function BolaoGroupDetailPage() {
@@ -24,6 +29,7 @@ export function BolaoGroupDetailPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const userId = useAuthStore((s) => s.user?.id);
+  const setActiveGroup = useGroupStore((s) => s.setActiveGroup);
   const [tab, setTab] = useState<Tab>('ranking');
 
   const { data: group, isLoading } = useQuery({
@@ -32,6 +38,11 @@ export function BolaoGroupDetailPage() {
     staleTime: 30_000,
     enabled: !!id,
   });
+
+  // Set active group context whenever this page is open
+  useEffect(() => {
+    if (group) setActiveGroup(group.id, group.name);
+  }, [group, setActiveGroup]);
 
   const { data: ranking, isLoading: loadingRanking } = useQuery({
     queryKey: queryKeys.bolaoGroupRanking(id!),
@@ -46,6 +57,30 @@ export function BolaoGroupDetailPage() {
     staleTime: 30_000,
     enabled: !!id && tab === 'members',
   });
+
+  const { data: matchGroups } = useQuery({
+    queryKey: queryKeys.groups,
+    queryFn: groupsApi.list,
+    staleTime: 5 * 60_000,
+    enabled: tab === 'matches',
+  });
+
+  const { data: predictions } = useQuery({
+    queryKey: queryKeys.predictions(id!),
+    queryFn: () => predictionsApi.list(id!),
+    staleTime: 60_000,
+    enabled: !!id && tab === 'matches',
+  });
+
+  const predictionMap = new Map(predictions?.map((p) => [p.matchId, p]) ?? []);
+
+  const allMatches = matchGroups?.flatMap((g) => g.matches) ?? [];
+  const scheduledMatches = allMatches
+    .filter((m) => m.status === MatchStatus.Scheduled || m.status === MatchStatus.InProgress)
+    .sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime());
+  const finishedMatches = allMatches
+    .filter((m) => m.status === MatchStatus.Finished)
+    .sort((a, b) => new Date(b.matchDate).getTime() - new Date(a.matchDate).getTime());
 
   const isAdmin = group?.myRole === MemberRole.Admin;
 
@@ -119,7 +154,7 @@ export function BolaoGroupDetailPage() {
           <motion.button
             key={key}
             onClick={() => setTab(key)}
-            className="flex-1 relative py-2 rounded-lg text-sm font-semibold transition-colors"
+            className="flex-1 relative py-2 rounded-lg text-xs font-semibold transition-colors"
           >
             {tab === key && (
               <motion.div
@@ -161,6 +196,45 @@ export function BolaoGroupDetailPage() {
               ))
             ) : (
               <EmptyState emoji="🏆" title="Sem pontuação ainda" subtitle="O ranking aparece após os primeiros jogos." />
+            )}
+          </motion.div>
+        )}
+
+        {/* Matches tab */}
+        {tab === 'matches' && (
+          <motion.div
+            key="matches"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="space-y-4"
+          >
+            {scheduledMatches.length > 0 && (
+              <section className="space-y-2">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">Próximos jogos</p>
+                {scheduledMatches.map((m) => (
+                  <MatchCard
+                    key={m.id}
+                    match={m}
+                    prediction={predictionMap.get(m.id)}
+                  />
+                ))}
+              </section>
+            )}
+            {finishedMatches.length > 0 && (
+              <section className="space-y-2">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">Jogos encerrados</p>
+                {finishedMatches.map((m) => (
+                  <MatchCard
+                    key={m.id}
+                    match={m}
+                    prediction={predictionMap.get(m.id)}
+                  />
+                ))}
+              </section>
+            )}
+            {scheduledMatches.length === 0 && finishedMatches.length === 0 && (
+              <EmptyState emoji="⚽" title="Nenhum jogo disponível" subtitle="Os jogos aparecerão aqui em breve." />
             )}
           </motion.div>
         )}

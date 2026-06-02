@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { matchesApi } from '../../api/matches';
 import { predictionsApi } from '../../api/predictions';
 import { MatchStatus, queryKeys } from '../../types/api';
+import { useGroupStore } from '../../store/groupStore';
 import { cn } from '../../utils/cn';
 
 interface NavItem {
@@ -24,6 +25,7 @@ const NAV_ITEMS: NavItem[] = [
 
 export function BottomNav() {
   const { pathname } = useLocation();
+  const activeGroupId = useGroupStore((s) => s.activeGroupId);
 
   const { data: upcoming } = useQuery({
     queryKey: queryKeys.upcoming(48),
@@ -32,9 +34,10 @@ export function BottomNav() {
   });
 
   const { data: predictions } = useQuery({
-    queryKey: queryKeys.predictions,
-    queryFn: predictionsApi.list,
+    queryKey: queryKeys.predictions(activeGroupId ?? ''),
+    queryFn: () => predictionsApi.list(activeGroupId!),
     staleTime: 5 * 60_000,
+    enabled: !!activeGroupId,
   });
 
   const predictedIds = new Set(predictions?.map((p) => p.matchId) ?? []);

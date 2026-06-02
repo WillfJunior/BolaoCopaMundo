@@ -9,6 +9,7 @@ import { PredictionInput } from '../../components/match/PredictionInput';
 import { TeamFlag } from '../../components/match/MatchCard';
 import { formatFullDate } from '../../utils/formatters';
 import { useCountdown } from '../../hooks/useCountdown';
+import { useGroupStore } from '../../store/groupStore';
 
 const phaseLabels: Record<MatchPhase, string> = {
   [MatchPhase.GroupStage]: '⚽ Fase de Grupos',
@@ -24,6 +25,7 @@ export function MatchDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const matchId = Number(id);
+  const activeGroupId = useGroupStore((s) => s.activeGroupId);
 
   const { data: match, isLoading: loadingMatch } = useQuery({
     queryKey: queryKeys.match(matchId),
@@ -33,10 +35,10 @@ export function MatchDetailPage() {
   });
 
   const { data: prediction = null, isLoading: loadingPred } = useQuery({
-    queryKey: queryKeys.predictionForMatch(matchId),
-    queryFn: () => predictionsApi.forMatch(matchId),
+    queryKey: queryKeys.predictionForMatch(matchId, activeGroupId ?? ''),
+    queryFn: () => predictionsApi.forMatch(matchId, activeGroupId!),
     staleTime: 5 * 60_000,
-    enabled: !!matchId,
+    enabled: !!matchId && !!activeGroupId,
   });
 
   if (loadingMatch || loadingPred) {
@@ -168,7 +170,13 @@ export function MatchDetailPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <PredictionInput match={match} prediction={prediction} />
+        {activeGroupId ? (
+          <PredictionInput match={match} prediction={prediction} groupId={activeGroupId} />
+        ) : (
+          <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-700 font-medium text-center">
+            Acesse um grupo para fazer seu palpite neste jogo.
+          </div>
+        )}
       </motion.div>
     </div>
   );

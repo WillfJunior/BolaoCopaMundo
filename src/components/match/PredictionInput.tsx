@@ -10,9 +10,10 @@ import { ScoreBadge } from './ScoreBadge';
 interface Props {
   match: MatchDto;
   prediction: PredictionDto | null;
+  groupId: string;
 }
 
-export function PredictionInput({ match, prediction }: Props) {
+export function PredictionInput({ match, prediction, groupId }: Props) {
   const qc = useQueryClient();
   const isOpen =
     match.status === MatchStatus.Scheduled && new Date(match.matchDate) > new Date();
@@ -31,13 +32,14 @@ export function PredictionInput({ match, prediction }: Props) {
   const { mutate, isPending } = useMutation({
     mutationFn: () =>
       predictionsApi.save({
+        groupId,
         matchId: match.id,
         homeScore: Number(home),
         awayScore: Number(away),
       }),
     onSuccess: (data) => {
-      qc.setQueryData(queryKeys.predictionForMatch(match.id), data);
-      qc.invalidateQueries({ queryKey: queryKeys.predictions });
+      qc.setQueryData(queryKeys.predictionForMatch(match.id, groupId), data);
+      qc.invalidateQueries({ queryKey: queryKeys.predictions(groupId) });
       toast.success('Palpite salvo!');
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { groupsApi } from '../../api/groups';
 import { predictionsApi } from '../../api/predictions';
 import { queryKeys, type MatchDto } from '../../types/api';
+import { useGroupStore } from '../../store/groupStore';
 import { MatchCard } from '../../components/match/MatchCard';
 import { getImageUrl } from '../../utils/formatters';
 
@@ -15,6 +16,7 @@ export function GroupDetailPage() {
   const { name } = useParams<{ name: string }>();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>('matches');
+  const activeGroupId = useGroupStore((s) => s.activeGroupId);
 
   const { data: group, isLoading } = useQuery({
     queryKey: queryKeys.group(name!),
@@ -24,9 +26,10 @@ export function GroupDetailPage() {
   });
 
   const { data: predictions } = useQuery({
-    queryKey: queryKeys.predictions,
-    queryFn: predictionsApi.list,
+    queryKey: queryKeys.predictions(activeGroupId ?? ''),
+    queryFn: () => predictionsApi.list(activeGroupId!),
     staleTime: 5 * 60_000,
+    enabled: !!activeGroupId,
   });
 
   const matchesByRound = group?.matches.reduce<Record<number, MatchDto[]>>((acc, m) => {

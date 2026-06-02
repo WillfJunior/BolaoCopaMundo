@@ -52,6 +52,7 @@ export interface GroupDto {
 // ─── Palpites ─────────────────────────────────────────────────────────────────
 export interface PredictionDto {
   id: string;
+  groupId: string;
   matchId: number;
   homeScore: number;
   awayScore: number;
@@ -99,6 +100,7 @@ export interface BolaoGroupMemberDto {
 }
 export interface GroupInviteInfoDto {
   groupId: string;
+  inviteCode: string;
   groupName: string;
   description: string | null;
   creatorName: string;
@@ -139,8 +141,8 @@ export const queryKeys = {
   group: (name: string) => ['groups', name] as const,
   match: (id: number) => ['matches', id] as const,
   upcoming: (hours: number) => ['matches', 'upcoming', hours] as const,
-  predictions: ['predictions'] as const,
-  predictionForMatch: (matchId: number) => ['predictions', 'match', matchId] as const,
+  predictions: (groupId: string) => ['predictions', groupId] as const,
+  predictionForMatch: (matchId: number, groupId: string) => ['predictions', 'match', matchId, groupId] as const,
   ranking: ['ranking'] as const,
   myRanking: ['ranking', 'me'] as const,
   profile: ['users', 'me'] as const,

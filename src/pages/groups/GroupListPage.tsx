@@ -10,6 +10,7 @@ import { MatchCard } from '../../components/match/MatchCard';
 import { formatMatchDate, getImageUrl } from '../../utils/formatters';
 import { useCountdown } from '../../hooks/useCountdown';
 import { useAuthStore } from '../../store/authStore';
+import { useGroupStore } from '../../store/groupStore';
 
 const container = {
   animate: { transition: { staggerChildren: 0.05 } },
@@ -21,6 +22,7 @@ const cardVariant = {
 
 export function GroupListPage() {
   const user = useAuthStore((s) => s.user);
+  const activeGroupId = useGroupStore((s) => s.activeGroupId);
 
   const { data: groups, isLoading: loadingGroups } = useQuery({
     queryKey: queryKeys.groups,
@@ -35,9 +37,10 @@ export function GroupListPage() {
   });
 
   const { data: predictions } = useQuery({
-    queryKey: queryKeys.predictions,
-    queryFn: predictionsApi.list,
+    queryKey: queryKeys.predictions(activeGroupId ?? ''),
+    queryFn: () => predictionsApi.list(activeGroupId!),
     staleTime: 5 * 60_000,
+    enabled: !!activeGroupId,
   });
 
   const predictedIds = new Set(predictions?.map((p) => p.matchId) ?? []);
