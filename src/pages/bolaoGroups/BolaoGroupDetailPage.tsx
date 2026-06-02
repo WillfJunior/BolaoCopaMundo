@@ -233,6 +233,22 @@ export function BolaoGroupDetailPage() {
             exit={{ opacity: 0 }}
             className="space-y-4"
           >
+            {/* Quick-fill shortcut */}
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={() => navigate(`/meus-grupos/${id}/palpites`)}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-linear-to-r from-green-600 to-emerald-600 text-white shadow-md shadow-green-200"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🎯</span>
+                <div className="text-left">
+                  <p className="text-sm font-bold leading-tight">Palpitar Fase de Grupos</p>
+                  <p className="text-[11px] text-green-100">Preencha todos os jogos de uma vez</p>
+                </div>
+              </div>
+              <ArrowLeft size={16} className="rotate-180 opacity-70" />
+            </motion.button>
+
             {scheduledMatches.length > 0 && (
               <section className="space-y-2">
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">Próximos jogos</p>

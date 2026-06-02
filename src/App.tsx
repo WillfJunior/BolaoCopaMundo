@@ -44,6 +44,9 @@ const BolaoGroupDetailPage = lazy(() =>
 const JoinGroupPage = lazy(() =>
   import('./pages/bolaoGroups/JoinGroupPage').then((m) => ({ default: m.JoinGroupPage }))
 );
+const GroupStagePredictionsPage = lazy(() =>
+  import('./pages/bolaoGroups/GroupStagePredictionsPage').then((m) => ({ default: m.GroupStagePredictionsPage }))
+);
 
 initAxiosAuth(
   () => useAuthStore.getState().token,
@@ -84,6 +87,7 @@ function AppLayout() {
                 <Route path="/admin" element={<Wrap><AdminPage /></Wrap>} />
                 <Route path="/meus-grupos" element={<Wrap><MyBolaoGroupsPage /></Wrap>} />
                 <Route path="/meus-grupos/:id" element={<Wrap><BolaoGroupDetailPage /></Wrap>} />
+                <Route path="/meus-grupos/:id/palpites" element={<Wrap><GroupStagePredictionsPage /></Wrap>} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
