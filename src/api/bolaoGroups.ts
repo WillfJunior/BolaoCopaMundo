@@ -28,7 +28,7 @@ export const bolaoGroupsApi = {
     api.get<GroupInviteInfoDto>(`/api/bolao-groups/invite/${code}`).then((r) => r.data),
 
   join: (code: string) =>
-    api.post<BolaoGroupDto>(`/api/bolao-groups/invite/${code}/join`).then((r) => r.data),
+    api.post<BolaoGroupDto>(`/api/bolao-groups/invite/${code}/accept`).then((r) => r.data),
 
   regenerateInvite: (id: string) =>
     api
