@@ -5,7 +5,7 @@ import { rankingApi } from '../../api/ranking';
 import { queryKeys } from '../../types/api';
 import { RankingRow } from '../../components/ranking/RankingRow';
 import { useAuthStore } from '../../store/authStore';
-import { getImageUrl } from '../../utils/formatters';
+import { UserAvatar } from '../../components/ui/UserAvatar';
 
 export function RankingPage() {
   const userId = useAuthStore((s) => s.user?.id);
@@ -171,17 +171,12 @@ function PodiumBlock({
     >
       {/* Avatar */}
       <div className="relative">
-        {entry.userPhotoUrl ? (
-          <img
-            src={getImageUrl(entry.userPhotoUrl)!}
-            alt={entry.userName}
-            className="w-12 h-12 rounded-full object-cover border-2 border-white/30"
-          />
-        ) : (
-          <div className="w-12 h-12 rounded-full bg-white/15 border-2 border-white/20 flex items-center justify-center text-lg font-black text-white">
-            {entry.userName.charAt(0).toUpperCase()}
-          </div>
-        )}
+        <UserAvatar
+          photoUrl={entry.userPhotoUrl}
+          name={entry.userName}
+          size="md"
+          className="border-2 border-white/30"
+        />
         <span className="absolute -bottom-1 -right-1 text-base">{medals[rank - 1]}</span>
       </div>
 

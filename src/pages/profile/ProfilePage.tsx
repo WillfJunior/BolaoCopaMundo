@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import imageCompression from 'browser-image-compression';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,7 +14,7 @@ import { queryKeys } from '../../types/api';
 import { useAuth } from '../../hooks/useAuth';
 import { usePushNotification } from '../../hooks/usePushNotification';
 import { useAuthStore } from '../../store/authStore';
-import { getImageUrl } from '../../utils/formatters';
+import { UserAvatar } from '../../components/ui/UserAvatar';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Nome muito curto'),
@@ -55,6 +55,15 @@ export function ProfilePage() {
     queryFn: usersApi.me,
     staleTime: 5 * 60_000,
   });
+
+  // Sync photoUrl from API to authStore so Header always shows the current photo
+  useEffect(() => {
+    if (!profile) return;
+    const { user, token, setAuth } = useAuthStore.getState();
+    if (user && token && profile.photoUrl !== user.photoUrl) {
+      setAuth(token, { ...user, photoUrl: profile.photoUrl ?? null });
+    }
+  }, [profile?.photoUrl]);
 
   const {
     register: regProfile,
@@ -154,17 +163,12 @@ export function ProfilePage() {
 
         {/* Avatar click */}
         <button onClick={() => fileRef.current?.click()} className="relative group">
-          {profile?.photoUrl ? (
-            <img
-              src={getImageUrl(profile.photoUrl)!}
-              alt={profile.name}
-              className="w-24 h-24 rounded-full object-cover ring-4 ring-green-500/40 ring-offset-2 ring-offset-slate-800"
-            />
-          ) : (
-            <div className="w-24 h-24 rounded-full bg-linear-to-br from-green-400 to-green-700 flex items-center justify-center text-4xl font-black text-white ring-4 ring-green-500/40 ring-offset-2 ring-offset-slate-800">
-              {profile?.name.charAt(0).toUpperCase()}
-            </div>
-          )}
+          <UserAvatar
+            photoUrl={profile?.photoUrl}
+            name={profile?.name ?? ''}
+            size="xl"
+            className="ring-4 ring-green-500/40 ring-offset-2 ring-offset-slate-800"
+          />
           <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
             {uploadPhoto.isPending
               ? <Loader2 size={24} className="text-white animate-spin" />

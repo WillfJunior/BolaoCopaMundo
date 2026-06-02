@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Trophy, Shield } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
-import { getImageUrl } from '../../utils/formatters';
+import { UserAvatar } from '../ui/UserAvatar';
 
 const TITLES: Record<string, string> = {
   '/': 'Copa do Mundo 2026',
@@ -66,17 +66,12 @@ export function Header() {
           {user && (
             <Link to="/profile">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                {user.photoUrl ? (
-                  <img
-                    src={getImageUrl(user.photoUrl)!}
-                    alt={user.name}
-                    className="w-8 h-8 rounded-full object-cover ring-2 ring-green-400 ring-offset-1"
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-linear-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-sm font-bold ring-2 ring-green-300 ring-offset-1 shadow-sm">
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
+                <UserAvatar
+                  photoUrl={user.photoUrl}
+                  name={user.name}
+                  size="sm"
+                  className="ring-2 ring-green-400 ring-offset-1"
+                />
               </motion.div>
             </Link>
           )}

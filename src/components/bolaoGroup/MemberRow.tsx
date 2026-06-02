@@ -5,7 +5,7 @@ import { toast } from 'react-hot-toast';
 import { bolaoGroupsApi } from '../../api/bolaoGroups';
 import { type BolaoGroupMemberDto, MemberRole, MemberStatus, queryKeys } from '../../types/api';
 import { cn } from '../../utils/cn';
-import { getImageUrl } from '../../utils/formatters';
+import { UserAvatar } from '../ui/UserAvatar';
 
 interface Props {
   member: BolaoGroupMemberDto;
@@ -41,24 +41,7 @@ export function MemberRow({ member, groupId, isGroupAdmin, isSelf, index }: Prop
       )}
     >
       {/* Avatar */}
-      {member.userPhotoUrl ? (
-        <img
-          src={getImageUrl(member.userPhotoUrl)!}
-          alt={member.userName}
-          className="w-10 h-10 rounded-full object-cover shrink-0"
-        />
-      ) : (
-        <div
-          className={cn(
-            'w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0',
-            isSelf
-              ? 'bg-linear-to-br from-green-400 to-green-600 text-white'
-              : 'bg-slate-100 text-slate-500'
-          )}
-        >
-          {member.userName.charAt(0).toUpperCase()}
-        </div>
-      )}
+      <UserAvatar photoUrl={member.userPhotoUrl} name={member.userName} size="md" />
 
       {/* Name + role */}
       <div className="flex-1 min-w-0">

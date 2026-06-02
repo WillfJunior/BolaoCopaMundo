@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { type RankingEntryDto } from '../../types/api';
 import { cn } from '../../utils/cn';
-import { getImageUrl } from '../../utils/formatters';
+import { UserAvatar } from '../ui/UserAvatar';
 
 interface Props {
   entry: RankingEntryDto;
@@ -53,26 +53,12 @@ export function RankingRow({ entry, isMe, index }: Props) {
       </div>
 
       {/* Avatar */}
-      {entry.userPhotoUrl ? (
-        <img
-          src={getImageUrl(entry.userPhotoUrl)!}
-          alt={entry.userName}
-          className={cn('w-10 h-10 rounded-full object-cover shrink-0', isMe && 'ring-2 ring-green-400 ring-offset-1')}
-        />
-      ) : (
-        <div
-          className={cn(
-            'w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0',
-            isMe
-              ? 'bg-linear-to-br from-green-400 to-green-600 text-white ring-2 ring-green-400 ring-offset-1'
-              : isPodium
-                ? 'bg-linear-to-br from-amber-300 to-amber-500 text-white'
-                : 'bg-slate-100 text-slate-500'
-          )}
-        >
-          {entry.userName.charAt(0).toUpperCase()}
-        </div>
-      )}
+      <UserAvatar
+        photoUrl={entry.userPhotoUrl}
+        name={entry.userName}
+        size="md"
+        className={isMe ? 'ring-2 ring-green-400 ring-offset-1' : undefined}
+      />
 
       {/* Name + stats */}
       <div className="flex-1 min-w-0">
