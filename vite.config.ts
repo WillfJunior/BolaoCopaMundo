@@ -15,7 +15,7 @@ export default defineConfig({
       strategies: 'injectManifest',
       injectManifest: {
         swSrc: 'src/sw.ts',
-        swDest: 'dist/sw.js',
+        swDest: 'dist/service-worker.js',
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
       },
       manifest: {
