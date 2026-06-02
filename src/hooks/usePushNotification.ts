@@ -55,7 +55,7 @@ export function usePushNotification() {
       });
 
       setIsSubscribed(true);
-      notificationsApi.welcome().catch(() => {});
+      notificationsApi.welcome().catch((e) => console.warn('[push] welcome falhou:', e?.response?.status, e?.response?.data));
     } catch (e) {
       console.error('Push subscription failed', e);
     } finally {
