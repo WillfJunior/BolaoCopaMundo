@@ -12,8 +12,14 @@ export function initAxiosAuth(
   doLogout = logoutFn;
 }
 
+function resolveBaseURL(): string {
+  const raw: string = import.meta.env.VITE_API_BASE_URL ?? '';
+  if (!raw) throw new Error('[axios] VITE_API_BASE_URL não está definida');
+  return raw.startsWith('http') ? raw : `https://${raw}`;
+}
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: resolveBaseURL(),
 });
 
 api.interceptors.request.use((config) => {
