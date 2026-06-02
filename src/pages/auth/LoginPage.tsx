@@ -2,7 +2,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { Lock, Loader2, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -30,6 +30,7 @@ const item = {
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const setAuth = useAuthStore((s) => s.setAuth);
   const qc = useQueryClient();
 
@@ -50,7 +51,7 @@ export function LoginPage() {
       // Clear cached data from any previous session before setting new auth
       qc.clear();
       setAuth(token, user);
-      navigate('/', { replace: true });
+      navigate(searchParams.get('redirect') ?? '/', { replace: true });
     },
     onError: (err: { response?: { data?: { message?: string } } }) =>
       toast.error(err.response?.data?.message ?? 'Credenciais inválidas'),
