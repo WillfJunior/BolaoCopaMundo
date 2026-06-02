@@ -6,6 +6,7 @@ import { PrivateRoute } from './components/layout/PrivateRoute';
 import { Header } from './components/layout/Header';
 import { BottomNav } from './components/layout/BottomNav';
 import { PageTransition } from './components/layout/PageTransition';
+import { PWAInstallModal } from './components/ui/PWAInstallModal';
 import { useAuthStore } from './store/authStore';
 import { initAxiosAuth } from './api/axios';
 
@@ -97,6 +98,7 @@ function AppLayout() {
 export function App() {
   return (
     <>
+      <PWAInstallModal />
       <Toaster
         position="top-center"
         containerStyle={{ top: 64 }}
