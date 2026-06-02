@@ -1,7 +1,7 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
-import { Users, LogIn, CheckCircle, Loader2, ArrowLeft, AlertCircle } from 'lucide-react';
+import { Users, LogIn, CheckCircle, Loader2, ArrowLeft, AlertCircle, Clock, Copy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { bolaoGroupsApi } from '../../api/bolaoGroups';
 import { queryKeys, MemberStatus } from '../../types/api';
@@ -22,11 +22,17 @@ export function JoinGroupPage() {
   const join = useMutation({
     mutationFn: () => bolaoGroupsApi.join(code!),
     onSuccess: (group) => {
-      toast.success(`Você entrou em "${group.name}"!`);
-      navigate(`/meus-grupos/${group.id}`, { replace: true });
+      if (group.myStatus === MemberStatus.Pending) {
+        toast('Solicitação enviada! Aguarde aprovação do admin.', { icon: '⏳' });
+        navigate('/meus-grupos', { replace: true });
+      } else {
+        toast.success(`Você entrou em "${group.name}"!`);
+        navigate(`/meus-grupos/${group.id}`, { replace: true });
+      }
     },
-    onError: (err: { response?: { data?: { message?: string } } }) =>
-      toast.error(err.response?.data?.message ?? 'Erro ao entrar no grupo'),
+    onError: (err: { response?: { data?: { message?: string } } }) => {
+      toast.error(err.response?.data?.message ?? 'Erro ao entrar no grupo');
+    },
   });
 
   const handleJoin = () => {
@@ -37,9 +43,12 @@ export function JoinGroupPage() {
     join.mutate();
   };
 
+  const copyPix = (key: string) => {
+    navigator.clipboard.writeText(key).then(() => toast.success('Chave PIX copiada!'));
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background blobs */}
       <motion.div
         animate={{ scale: [1, 1.1, 1] }}
         transition={{ duration: 8, repeat: Infinity }}
@@ -67,14 +76,9 @@ export function JoinGroupPage() {
             <AlertCircle size={48} className="text-red-400 mx-auto" />
             <div>
               <h2 className="text-lg font-bold text-slate-800">Link inválido</h2>
-              <p className="text-sm text-slate-400 mt-1">
-                Este convite não existe ou expirou.
-              </p>
+              <p className="text-sm text-slate-400 mt-1">Este convite não existe ou expirou.</p>
             </div>
-            <Link
-              to="/"
-              className="flex items-center justify-center gap-2 text-sm text-green-600 font-semibold hover:text-green-700"
-            >
+            <Link to="/" className="flex items-center justify-center gap-2 text-sm text-green-600 font-semibold hover:text-green-700">
               <ArrowLeft size={14} /> Voltar para o início
             </Link>
           </div>
@@ -94,7 +98,7 @@ export function JoinGroupPage() {
               </div>
             </div>
 
-            <div className="px-8 py-6 space-y-5">
+            <div className="px-8 py-6 space-y-4">
               {/* Group info */}
               <div className="bg-slate-50 rounded-2xl border border-slate-100 p-4 space-y-2">
                 <div className="flex items-center gap-3">
@@ -115,21 +119,68 @@ export function JoinGroupPage() {
                 </div>
               </div>
 
-              {/* Already member */}
-              {info.isAlreadyMember ? (
+              {/* Approval + PIX notice — shown when not yet active */}
+              {info.currentStatus !== MemberStatus.Active && !info.isAlreadyMember && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-3.5 space-y-2.5">
+                  <div className="flex items-start gap-2">
+                    <Clock size={15} className="text-amber-600 mt-0.5 shrink-0" />
+                    <p className="text-xs text-amber-800 font-medium leading-snug">
+                      Sua entrada depende de aprovação do administrador.
+                    </p>
+                  </div>
+
+                  {info.pixKey && (
+                    <>
+                      <div className="flex items-center justify-between gap-2 bg-white rounded-lg border border-amber-200 px-3 py-2">
+                        <div className="min-w-0">
+                          <p className="text-[10px] text-amber-600 font-semibold uppercase tracking-wider">
+                            Chave PIX para pagamento
+                          </p>
+                          <p className="text-sm font-bold text-slate-800 truncate">{info.pixKey}</p>
+                        </div>
+                        <button
+                          onClick={() => copyPix(info.pixKey!)}
+                          className="shrink-0 w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center hover:bg-amber-200 transition-colors"
+                        >
+                          <Copy size={13} className="text-amber-700" />
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-amber-700">
+                        Após solicitar entrada, realize o pagamento e aguarde a confirmação.
+                      </p>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* State: already active member */}
+              {info.isAlreadyMember && info.currentStatus === MemberStatus.Active ? (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-green-700 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
                     <CheckCircle size={18} />
                     <span className="text-sm font-semibold">Você já faz parte deste grupo!</span>
                   </div>
-                  <button
-                    onClick={() => navigate(`/meus-grupos/${info.groupId}`)}
-                    className="btn-primary"
-                  >
+                  <button onClick={() => navigate(`/meus-grupos/${info.groupId}`)} className="btn-primary">
                     Ver grupo →
                   </button>
                 </div>
+
+              ) : info.currentStatus === MemberStatus.Pending ? (
+                /* State: pending approval */
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                    <Clock size={18} />
+                    <span className="text-sm font-semibold">
+                      Solicitação enviada. Aguardando aprovação do administrador.
+                    </span>
+                  </div>
+                  <button disabled className="btn-primary opacity-50 cursor-not-allowed">
+                    <LogIn size={18} /> Aguardando aprovação
+                  </button>
+                </div>
+
               ) : (
+                /* State: not yet a member */
                 <div className="space-y-3">
                   <motion.button
                     whileTap={{ scale: 0.97 }}
@@ -137,16 +188,14 @@ export function JoinGroupPage() {
                     disabled={join.isPending}
                     className="btn-primary"
                   >
-                    {join.isPending ? (
-                      <Loader2 size={18} className="animate-spin" />
-                    ) : (
-                      <LogIn size={18} />
-                    )}
                     {join.isPending
-                      ? 'Entrando...'
+                      ? <Loader2 size={18} className="animate-spin" />
+                      : <LogIn size={18} />}
+                    {join.isPending
+                      ? 'Enviando...'
                       : !token
                         ? 'Fazer login para entrar'
-                        : 'Entrar no grupo'}
+                        : 'Solicitar entrada'}
                   </motion.button>
 
                   {!token && (
@@ -157,10 +206,7 @@ export function JoinGroupPage() {
                 </div>
               )}
 
-              <Link
-                to="/"
-                className="flex items-center justify-center gap-1 text-xs text-slate-400 hover:text-slate-600 transition-colors"
-              >
+              <Link to="/" className="flex items-center justify-center gap-1 text-xs text-slate-400 hover:text-slate-600 transition-colors">
                 <ArrowLeft size={12} /> Voltar para o início
               </Link>
             </div>

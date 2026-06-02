@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Users, ChevronRight, Crown } from 'lucide-react';
+import { Users, ChevronRight, Crown, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { type BolaoGroupDto, MemberRole } from '../../types/api';
 
@@ -46,7 +46,15 @@ export function BolaoGroupCard({ group, index }: Props) {
           </div>
         </div>
 
-        <ChevronRight size={16} className="text-slate-300 mt-1 shrink-0" />
+        <div className="flex flex-col items-end gap-1.5 shrink-0">
+          {isAdmin && group.pendingCount > 0 && (
+            <span className="flex items-center gap-1 text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">
+              <Clock size={10} />
+              {group.pendingCount} pendente{group.pendingCount > 1 ? 's' : ''}
+            </span>
+          )}
+          <ChevronRight size={16} className="text-slate-300" />
+        </div>
       </div>
     </motion.div>
   );

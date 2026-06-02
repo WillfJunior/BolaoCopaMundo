@@ -11,7 +11,7 @@ export const bolaoGroupsApi = {
 
   get: (id: string) => api.get<BolaoGroupDto>(`/api/bolao-groups/${id}`).then((r) => r.data),
 
-  create: (data: { name: string; description?: string }) =>
+  create: (data: { name: string; description?: string; pixKey?: string }) =>
     api.post<BolaoGroupDto>('/api/bolao-groups', data).then((r) => r.data),
 
   delete: (id: string) => api.delete(`/api/bolao-groups/${id}`),
@@ -23,6 +23,12 @@ export const bolaoGroupsApi = {
 
   removeMember: (id: string, userId: string) =>
     api.delete(`/api/bolao-groups/${id}/members/${userId}`),
+
+  pendingMembers: (id: string) =>
+    api.get<BolaoGroupMemberDto[]>(`/api/bolao-groups/${id}/members/pending`).then((r) => r.data),
+
+  approveMember: (id: string, userId: string) =>
+    api.post<BolaoGroupMemberDto>(`/api/bolao-groups/${id}/members/${userId}/approve`).then((r) => r.data),
 
   inviteInfo: (code: string) =>
     api.get<GroupInviteInfoDto>(`/api/bolao-groups/invite/${code}`).then((r) => r.data),

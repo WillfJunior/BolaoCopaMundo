@@ -84,7 +84,9 @@ export interface BolaoGroupDto {
   inviteCode: string;
   inviteLink: string;
   whatsAppShareUrl: string;
+  pixKey: string | null;
   memberCount: number;
+  pendingCount: number;
   myRole: MemberRole;
   myStatus: MemberStatus;
   createdAt: string;
@@ -102,6 +104,7 @@ export interface GroupInviteInfoDto {
   groupId: string;
   inviteCode: string;
   groupName: string;
+  pixKey: string | null;
   description: string | null;
   creatorName: string;
   memberCount: number;

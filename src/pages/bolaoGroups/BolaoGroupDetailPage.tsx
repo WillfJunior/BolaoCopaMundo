@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
-import { ArrowLeft, LogOut, Trash2, Loader2 } from 'lucide-react';
+import { ArrowLeft, LogOut, Trash2, Loader2, CheckCircle, X, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { bolaoGroupsApi } from '../../api/bolaoGroups';
 import { groupsApi } from '../../api/groups';
 import { predictionsApi } from '../../api/predictions';
-import { queryKeys, MemberRole, MatchStatus } from '../../types/api';
+import { queryKeys, MemberRole, MatchStatus, MemberStatus } from '../../types/api';
 import { useAuthStore } from '../../store/authStore';
 import { useGroupStore } from '../../store/groupStore';
 import { RankingRow } from '../../components/ranking/RankingRow';
@@ -56,6 +56,23 @@ export function BolaoGroupDetailPage() {
     queryFn: () => bolaoGroupsApi.members(id!),
     staleTime: 30_000,
     enabled: !!id && tab === 'members',
+  });
+
+  const { data: pendingMembers } = useQuery({
+    queryKey: [...queryKeys.bolaoGroupMembers(id!), 'pending'],
+    queryFn: () => bolaoGroupsApi.pendingMembers(id!),
+    staleTime: 30_000,
+    enabled: !!id && tab === 'members',
+  });
+
+  const approve = useMutation({
+    mutationFn: (userId: string) => bolaoGroupsApi.approveMember(id!, userId),
+    onSuccess: (member) => {
+      qc.invalidateQueries({ queryKey: queryKeys.bolaoGroupMembers(id!) });
+      qc.invalidateQueries({ queryKey: queryKeys.bolaoGroup(id!) });
+      toast.success(`${member.userName} aprovado!`);
+    },
+    onError: () => toast.error('Erro ao aprovar membro'),
   });
 
   const { data: matchGroups } = useQuery({
@@ -246,26 +263,82 @@ export function BolaoGroupDetailPage() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="space-y-2"
+            className="space-y-4"
           >
-            {loadingMembers ? (
-              Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="skeleton h-14 rounded-xl" />
-              ))
-            ) : members && members.length > 0 ? (
-              members.map((m, i) => (
-                <MemberRow
-                  key={m.userId}
-                  member={m}
-                  groupId={id!}
-                  isGroupAdmin={isAdmin}
-                  isSelf={m.userId === userId}
-                  index={i}
-                />
-              ))
-            ) : (
-              <EmptyState emoji="👥" title="Nenhum membro" subtitle="Convide pessoas via link!" />
+            {/* Pending section — admin only */}
+            {isAdmin && pendingMembers && pendingMembers.length > 0 && (
+              <section className="space-y-2">
+                <div className="flex items-center gap-2 px-1">
+                  <Clock size={13} className="text-amber-500" />
+                  <p className="text-xs font-bold text-amber-600 uppercase tracking-wider">
+                    Aguardando aprovação ({pendingMembers.length})
+                  </p>
+                </div>
+                {pendingMembers.map((m) => (
+                  <div
+                    key={m.userId}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl border border-amber-200 bg-amber-50"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-amber-200 flex items-center justify-center text-sm font-bold text-amber-700 shrink-0">
+                      {m.userName.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="flex-1 text-sm font-semibold text-slate-700 truncate">
+                      {m.userName}
+                    </span>
+                    <div className="flex gap-2 shrink-0">
+                      <button
+                        onClick={() => approve.mutate(m.userId)}
+                        disabled={approve.isPending}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-bold hover:bg-green-700 transition-colors disabled:opacity-60"
+                      >
+                        {approve.isPending
+                          ? <Loader2 size={12} className="animate-spin" />
+                          : <CheckCircle size={12} />}
+                        Aprovar
+                      </button>
+                      <button
+                        onClick={() => {
+                          qc.invalidateQueries({ queryKey: queryKeys.bolaoGroupMembers(id!) });
+                          bolaoGroupsApi.removeMember(id!, m.userId).then(() => {
+                            qc.invalidateQueries({ queryKey: queryKeys.bolaoGroupMembers(id!) });
+                            qc.invalidateQueries({ queryKey: queryKeys.bolaoGroup(id!) });
+                            toast.success(`${m.userName} rejeitado`);
+                          });
+                        }}
+                        className="w-8 h-8 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center text-red-500 hover:bg-red-100 transition-colors"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <div className="border-t border-slate-100 pt-2" />
+              </section>
             )}
+
+            {/* Active members */}
+            <section className="space-y-2">
+              {loadingMembers ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="skeleton h-14 rounded-xl" />
+                ))
+              ) : members && members.filter(m => m.status === MemberStatus.Active).length > 0 ? (
+                members
+                  .filter(m => m.status === MemberStatus.Active)
+                  .map((m, i) => (
+                    <MemberRow
+                      key={m.userId}
+                      member={m}
+                      groupId={id!}
+                      isGroupAdmin={isAdmin}
+                      isSelf={m.userId === userId}
+                      index={i}
+                    />
+                  ))
+              ) : (
+                <EmptyState emoji="👥" title="Nenhum membro ativo" subtitle="Convide pessoas via link!" />
+              )}
+            </section>
           </motion.div>
         )}
 

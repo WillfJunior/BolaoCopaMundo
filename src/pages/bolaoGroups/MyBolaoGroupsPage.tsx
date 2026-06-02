@@ -9,16 +9,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { bolaoGroupsApi } from '../../api/bolaoGroups';
 import { queryKeys } from '../../types/api';
 import { BolaoGroupCard } from '../../components/bolaoGroup/BolaoGroupCard';
+import { useAuthStore } from '../../store/authStore';
 
 const schema = z.object({
   name: z.string().min(3, 'Nome deve ter ao menos 3 caracteres').max(60),
   description: z.string().max(200).optional(),
+  pixKey: z.string().max(100).optional(),
 });
 type FormValues = z.infer<typeof schema>;
 
 export function MyBolaoGroupsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const qc = useQueryClient();
+  const isAdmin = useAuthStore((s) => s.user?.isAdmin ?? false);
 
   const { data: groups, isLoading } = useQuery({
     queryKey: queryKeys.bolaoGroups,
@@ -34,7 +37,12 @@ export function MyBolaoGroupsPage() {
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   const create = useMutation({
-    mutationFn: (data: FormValues) => bolaoGroupsApi.create(data),
+    mutationFn: (data: FormValues) =>
+      bolaoGroupsApi.create({
+        name: data.name,
+        description: data.description,
+        pixKey: data.pixKey || undefined,
+      }),
     onSuccess: (group) => {
       qc.invalidateQueries({ queryKey: queryKeys.bolaoGroups });
       toast.success(`Grupo "${group.name}" criado!`);
@@ -57,19 +65,23 @@ export function MyBolaoGroupsPage() {
             <p className="text-xs text-slate-400">{groups?.length ?? 0} grupos</p>
           </div>
         </div>
-        <motion.button
-          whileTap={{ scale: 0.94 }}
-          onClick={() => setShowCreate((v) => !v)}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-green-600 text-white text-sm font-semibold shadow-md shadow-green-200 hover:bg-green-700 transition-colors"
-        >
-          {showCreate ? <X size={16} /> : <Plus size={16} />}
-          {showCreate ? 'Cancelar' : 'Criar grupo'}
-        </motion.button>
+
+        {/* Only admins can create groups */}
+        {isAdmin && (
+          <motion.button
+            whileTap={{ scale: 0.94 }}
+            onClick={() => setShowCreate((v) => !v)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-green-600 text-white text-sm font-semibold shadow-md shadow-green-200 hover:bg-green-700 transition-colors"
+          >
+            {showCreate ? <X size={16} /> : <Plus size={16} />}
+            {showCreate ? 'Cancelar' : 'Criar grupo'}
+          </motion.button>
+        )}
       </div>
 
-      {/* Create group form */}
+      {/* Create group form (admin only) */}
       <AnimatePresence>
-        {showCreate && (
+        {showCreate && isAdmin && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
@@ -103,6 +115,19 @@ export function MyBolaoGroupsPage() {
                     rows={2}
                     className="input resize-none"
                   />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                    Chave PIX (opcional)
+                  </label>
+                  <input
+                    {...register('pixKey')}
+                    placeholder="CPF, telefone, e-mail ou chave aleatória"
+                    className="input"
+                  />
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Exibida aos participantes ao entrar no grupo.
+                  </p>
                 </div>
                 <button type="submit" disabled={create.isPending} className="btn-primary">
                   {create.isPending ? (
@@ -140,15 +165,8 @@ export function MyBolaoGroupsPage() {
           <Users size={52} className="mx-auto mb-4 opacity-20" />
           <p className="font-semibold text-slate-500 text-base">Nenhum grupo ainda</p>
           <p className="text-sm mt-1.5 max-w-xs mx-auto">
-            Crie um grupo e convide seus amigos para competir!
+            Aguarde um convite de um administrador para participar!
           </p>
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={() => setShowCreate(true)}
-            className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-green-600 text-white font-semibold text-sm shadow-md shadow-green-200"
-          >
-            <Plus size={16} /> Criar meu primeiro grupo
-          </motion.button>
         </motion.div>
       )}
     </div>
