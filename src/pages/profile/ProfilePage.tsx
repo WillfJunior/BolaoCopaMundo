@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+import { useRef, useCallback } from 'react';
+import imageCompression from 'browser-image-compression';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PhoneInput, cleanPhone } from '../../components/ui/PhoneInput';
@@ -93,7 +94,14 @@ export function ProfilePage() {
   });
 
   const uploadPhoto = useMutation({
-    mutationFn: (file: File) => usersApi.uploadPhoto(file),
+    mutationFn: async (file: File) => {
+      const compressed = await imageCompression(file, {
+        maxSizeMB: 0.8,
+        maxWidthOrHeight: 512,
+        useWebWorker: true,
+      });
+      return usersApi.uploadPhoto(compressed);
+    },
     onSuccess: ({ photoUrl }) => {
       qc.invalidateQueries({ queryKey: queryKeys.profile });
       const user = useAuthStore.getState().user;
@@ -103,6 +111,12 @@ export function ProfilePage() {
     },
     onError: () => toast.error('Erro ao enviar foto'),
   });
+
+  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) uploadPhoto.mutate(file);
+    e.target.value = '';
+  }, [uploadPhoto]);
 
   const changePassword = useMutation({
     mutationFn: (data: PasswordForm) =>
@@ -162,7 +176,7 @@ export function ProfilePage() {
           type="file"
           accept="image/*"
           className="hidden"
-          onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPhoto.mutate(f); }}
+          onChange={handleFileChange}
         />
 
         <div className="text-center">

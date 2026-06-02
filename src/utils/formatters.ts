@@ -65,8 +65,13 @@ export function toE164(maskedPhone: string): string {
  */
 export function getImageUrl(path: string | null | undefined): string | null {
   if (!path) return null;
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('//')) {
-    return path; // already absolute
+  if (
+    path.startsWith('data:') ||
+    path.startsWith('http://') ||
+    path.startsWith('https://') ||
+    path.startsWith('//')
+  ) {
+    return path;
   }
   const base = import.meta.env.VITE_API_BASE_URL as string;
   return `${base.replace(/\/$/, '')}${path.startsWith('/') ? '' : '/'}${path}`;
