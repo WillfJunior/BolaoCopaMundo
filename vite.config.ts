@@ -11,10 +11,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       srcDir: 'src',
-      filename: 'sw.ts',
+      filename: 'service-worker.ts',
       strategies: 'injectManifest',
       injectManifest: {
-        swSrc: 'src/sw.ts',
+        swSrc: 'src/service-worker.ts',
         swDest: 'dist/service-worker.js',
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
       },
