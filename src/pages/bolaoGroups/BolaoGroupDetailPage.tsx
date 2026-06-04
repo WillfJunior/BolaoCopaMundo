@@ -173,7 +173,7 @@ export function BolaoGroupDetailPage() {
 
       {/* Tabs */}
       <div className="flex rounded-xl bg-slate-100 p-1 gap-0.5">
-        {TABS.map(({ key, label, emoji }) => (
+        {TABS.filter(({ key }) => key !== 'members' || isAdmin).map(({ key, label, emoji }) => (
           <motion.button
             key={key}
             onClick={() => setTab(key)}
