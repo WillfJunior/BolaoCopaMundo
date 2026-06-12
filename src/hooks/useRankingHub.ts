@@ -26,12 +26,11 @@ export function useRankingHub() {
 
     connection.on('rankings-updated', (matchId: number) => {
       console.log(`📊 Ranking atualizado! Jogo #${matchId}`);
-      // Invalida rankings globais e de grupos
-      qc.invalidateQueries({ queryKey: queryKeys.ranking });
-      qc.invalidateQueries({ queryKey: queryKeys.myRanking });
-      // Invalida todos os rankings de grupos (simples e detalhado)
-      qc.invalidateQueries({ queryKey: ['bolaoGroupRanking'] });
-      qc.invalidateQueries({ queryKey: ['bolaoGroupRankingDetailed'] });
+      // Invalida todos os rankings detalhados dos grupos
+      qc.invalidateQueries({
+        queryKey: ['bolao-groups'],
+        exact: false
+      });
     });
 
     connection.onreconnected(() => {
