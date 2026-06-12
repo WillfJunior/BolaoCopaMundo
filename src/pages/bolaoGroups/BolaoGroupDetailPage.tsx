@@ -11,6 +11,7 @@ import { queryKeys, MemberRole, MatchStatus, MemberStatus } from '../../types/ap
 import { useAuthStore } from '../../store/authStore';
 import { useGroupStore } from '../../store/groupStore';
 import { RankingRow } from '../../components/ranking/RankingRow';
+import { DetailedRankingLeaderboard } from '../../components/ranking/DetailedRankingLeaderboard';
 import { MemberRow } from '../../components/bolaoGroup/MemberRow';
 import { InviteCard } from '../../components/bolaoGroup/InviteCard';
 import { MatchCard } from '../../components/match/MatchCard';
@@ -204,24 +205,8 @@ export function BolaoGroupDetailPage() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="space-y-2"
           >
-            {loadingRanking ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="skeleton h-16 rounded-2xl" />
-              ))
-            ) : ranking && ranking.length > 0 ? (
-              ranking.map((entry, i) => (
-                <RankingRow
-                  key={entry.userId}
-                  entry={entry}
-                  isMe={entry.userId === userId}
-                  index={i}
-                />
-              ))
-            ) : (
-              <EmptyState emoji="🏆" title="Sem pontuação ainda" subtitle="O ranking aparece após os primeiros jogos." />
-            )}
+            {id && <DetailedRankingLeaderboard groupId={id} />}
           </motion.div>
         )}
 
