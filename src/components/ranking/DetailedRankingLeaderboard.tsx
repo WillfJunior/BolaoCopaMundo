@@ -13,14 +13,16 @@ export function DetailedRankingLeaderboard({
   groupId,
   userId,
 }: DetailedRankingLeaderboardProps) {
-  // Busca ranking do grupo (apenas pontos deste grupo)
-  const { data: ranking, isLoading } = useQuery({
-    queryKey: queryKeys.rankingGroup(groupId),
-    queryFn: () => rankingApi.group(groupId),
+  // Busca rankings de todos os grupos do usuário
+  const { data: allGroupRankings, isLoading } = useQuery({
+    queryKey: queryKeys.rankingByGroup,
+    queryFn: () => rankingApi.byGroup(),
     refetchInterval: 15_000,
     staleTime: 5_000,
-    enabled: !!groupId,
   });
+
+  // Filtra ranking do grupo específico
+  const ranking = allGroupRankings?.find(g => g.groupId === groupId)?.rankings;
 
   if (isLoading) {
     return (
