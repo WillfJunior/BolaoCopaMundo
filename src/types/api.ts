@@ -173,5 +173,6 @@ export const queryKeys = {
   bolaoGroupMembers: (id: string) => ['bolao-groups', id, 'members'] as const,
   bolaoGroupRanking: (id: string) => ['bolao-groups', id, 'ranking'] as const,
   bolaoGroupRankingDetailed: (id: string) => ['bolao-groups', id, 'ranking', 'detailed'] as const,
+  rankingGroup: (id: string) => ['ranking', 'group', id] as const,
   bolaoInvite: (code: string) => ['bolao-invite', code] as const,
 };

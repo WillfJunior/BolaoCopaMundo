@@ -1,12 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { TrendingUp, Trophy, Target, Zap } from 'lucide-react';
-import { bolaoGroupsApi } from '../../api/bolaoGroups';
-import { queryKeys } from '../../types/api';
+import { Target, Zap } from 'lucide-react';
+import { useGroupRankingDetailed } from '../../hooks/useGroupRankingDetailed';
 import { UserAvatar } from '../ui/UserAvatar';
 
 interface DetailedRankingLeaderboardProps {
-  groupId: string;
+  readonly groupId: string;
+  readonly source?: 'ranking' | 'bolao-groups';
 }
 
 const medals = ['🥇', '🥈', '🥉'];
@@ -16,20 +15,20 @@ const medalColors = [
   'from-orange-500 to-orange-400',
 ];
 
-export function DetailedRankingLeaderboard({ groupId }: DetailedRankingLeaderboardProps) {
-  const { data: ranking, isLoading, error } = useQuery({
-    queryKey: queryKeys.bolaoGroupRankingDetailed(groupId),
-    queryFn: () => bolaoGroupsApi.rankingDetailed(groupId),
-    refetchInterval: 15_000,
-    staleTime: 5_000,
-    enabled: !!groupId,
+export function DetailedRankingLeaderboard({
+  groupId,
+  source = 'bolao-groups',
+}: DetailedRankingLeaderboardProps) {
+  const { data: ranking, isLoading, error } = useGroupRankingDetailed({
+    groupId,
+    source,
   });
 
   if (isLoading) {
     return (
       <div className="space-y-4">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="skeleton h-20 rounded-2xl" />
+          <div key={`skeleton-${i}`} className="skeleton h-20 rounded-2xl" />
         ))}
       </div>
     );
@@ -52,7 +51,6 @@ export function DetailedRankingLeaderboard({ groupId }: DetailedRankingLeaderboa
     );
   }
 
-  const leaderPoints = ranking.rankings[0]?.totalPoints || 0;
   const progressPercent = (ranking.processedMatches / ranking.totalMatches) * 100;
 
   return (
@@ -61,7 +59,7 @@ export function DetailedRankingLeaderboard({ groupId }: DetailedRankingLeaderboa
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-2xl p-4"
+        className="bg-linear-to-r from-slate-700 to-slate-800 rounded-2xl p-4"
       >
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
@@ -77,7 +75,7 @@ export function DetailedRankingLeaderboard({ groupId }: DetailedRankingLeaderboa
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="bg-gradient-to-r from-blue-500 to-blue-400 h-full"
+            className="bg-linear-to-r from-blue-500 to-blue-400 h-full"
           />
         </div>
         <p className="text-xs text-slate-400 mt-1">{progressPercent.toFixed(1)}% completo</p>
@@ -93,13 +91,13 @@ export function DetailedRankingLeaderboard({ groupId }: DetailedRankingLeaderboa
             transition={{ delay: index * 0.05 }}
             className={`rounded-2xl overflow-hidden transition-all ${
               entry.isLeader
-                ? 'ring-2 ring-amber-400 bg-gradient-to-r from-amber-50/10 to-yellow-50/10'
+                ? 'ring-2 ring-amber-400 bg-linear-to-r from-amber-50/10 to-yellow-50/10'
                 : 'bg-white/5'
             }`}
           >
             <div className="p-4 flex items-center gap-4">
               {/* Rank */}
-              <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-white/10 flex-shrink-0">
+              <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-white/10 shrink-0">
                 {index < 3 ? (
                   <span className="text-2xl">{medals[index]}</span>
                 ) : (
@@ -122,7 +120,7 @@ export function DetailedRankingLeaderboard({ groupId }: DetailedRankingLeaderboa
                     </p>
                   </div>
                   {entry.isLeader && (
-                    <div className="bg-amber-500/20 border border-amber-400/30 rounded-lg px-2 py-1 flex-shrink-0">
+                    <div className="bg-amber-500/20 border border-amber-400/30 rounded-lg px-2 py-1 shrink-0">
                       <p className="text-xs font-bold text-amber-300">LÍDER</p>
                     </div>
                   )}
@@ -139,7 +137,7 @@ export function DetailedRankingLeaderboard({ groupId }: DetailedRankingLeaderboa
                     <div className="flex items-center gap-1">
                       <div className="flex-1 bg-slate-600 rounded-full h-1.5 overflow-hidden">
                         <div
-                          className="bg-gradient-to-r from-green-500 to-emerald-400 h-full"
+                          className="bg-linear-to-r from-green-500 to-emerald-400 h-full"
                           style={{ width: `${entry.accuracyRate}%` }}
                         />
                       </div>
@@ -166,7 +164,7 @@ export function DetailedRankingLeaderboard({ groupId }: DetailedRankingLeaderboa
               </div>
 
               {/* Points Section */}
-              <div className="flex flex-col items-end gap-2 flex-shrink-0">
+              <div className="flex flex-col items-end gap-2 shrink-0">
                 <div className="text-center">
                   <p className="text-sm text-slate-400">Pontos</p>
                   <p className="text-3xl font-black text-white">{entry.totalPoints}</p>
