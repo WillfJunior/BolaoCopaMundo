@@ -74,6 +74,25 @@ export interface RankingEntryDto {
   totalPredictions: number;
 }
 
+export interface GroupRankingDetailedEntryDto extends RankingEntryDto {
+  pointsPerPrediction: number;
+  accuracyRate: number;
+  isLeader: boolean;
+  pointsDifference: number;
+}
+
+export interface GroupRankingDetailedDto {
+  groupId: string;
+  groupName: string;
+  groupDescription: string | null;
+  totalMembers: number;
+  totalMatches: number;
+  processedMatches: number;
+  creatorName: string;
+  generatedAt: string;
+  rankings: GroupRankingDetailedEntryDto[];
+}
+
 // ─── Grupos do Bolão ──────────────────────────────────────────────────────────
 export interface BolaoGroupDto {
   id: string;
@@ -153,5 +172,6 @@ export const queryKeys = {
   bolaoGroup: (id: string) => ['bolao-groups', id] as const,
   bolaoGroupMembers: (id: string) => ['bolao-groups', id, 'members'] as const,
   bolaoGroupRanking: (id: string) => ['bolao-groups', id, 'ranking'] as const,
+  bolaoGroupRankingDetailed: (id: string) => ['bolao-groups', id, 'ranking', 'detailed'] as const,
   bolaoInvite: (code: string) => ['bolao-invite', code] as const,
 };

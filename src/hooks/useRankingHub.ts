@@ -29,8 +29,9 @@ export function useRankingHub() {
       // Invalida rankings globais e de grupos
       qc.invalidateQueries({ queryKey: queryKeys.ranking });
       qc.invalidateQueries({ queryKey: queryKeys.myRanking });
-      // Invalida todos os rankings de grupos
+      // Invalida todos os rankings de grupos (simples e detalhado)
       qc.invalidateQueries({ queryKey: ['bolaoGroupRanking'] });
+      qc.invalidateQueries({ queryKey: ['bolaoGroupRankingDetailed'] });
     });
 
     connection.onreconnected(() => {
