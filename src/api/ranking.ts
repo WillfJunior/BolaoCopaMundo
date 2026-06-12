@@ -5,5 +5,5 @@ export const rankingApi = {
   list: () => api.get<RankingEntryDto[]>('/api/ranking').then((r) => r.data),
   me: () => api.get<RankingEntryDto>('/api/ranking/me').then((r) => r.data),
   group: (groupId: string) =>
-    api.get<RankingEntryDto[]>('/api/ranking', { params: { groupId } }).then((r) => r.data),
+    api.get<RankingEntryDto[]>(`/api/ranking/by-group/${groupId}`).then((r) => r.data),
 };
