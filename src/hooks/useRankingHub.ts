@@ -26,9 +26,9 @@ export function useRankingHub() {
 
     connection.on('rankings-updated', (matchId: number) => {
       console.log(`📊 Ranking atualizado! Jogo #${matchId}`);
-      // Invalida todos os rankings detalhados dos grupos
+      // Invalida ranking do grupo
       qc.invalidateQueries({
-        queryKey: ['bolao-groups'],
+        queryKey: ['ranking', 'group'],
         exact: false
       });
     });
