@@ -53,7 +53,8 @@ export function BolaoGroupDetailPage() {
   const { data: ranking, isLoading: loadingRanking } = useQuery({
     queryKey: queryKeys.bolaoGroupRanking(id!),
     queryFn: () => bolaoGroupsApi.ranking(id!),
-    staleTime: 30_000,
+    refetchInterval: 15_000,
+    staleTime: 5_000,
     enabled: !!id && tab === 'ranking',
   });
 
