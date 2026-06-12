@@ -72,7 +72,7 @@ export interface RankingEntryDto {
   exactScores: number;
   correctOutcomes: number;
   totalPredictions: number;
-  wrongPredictions?: number;
+  errors?: number;
 }
 
 export interface GroupRankingDetailedEntryDto extends RankingEntryDto {
