@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { rankingApi } from '../../api/ranking';
+import { bolaoGroupsApi } from '../../api/bolaoGroups';
 import { queryKeys } from '../../types/api';
 import { RankingRow } from './RankingRow';
 
@@ -13,28 +14,36 @@ export function DetailedRankingLeaderboard({
   groupId,
   userId,
 }: DetailedRankingLeaderboardProps) {
-  const { data: ranking, isLoading, error } = useQuery({
-    queryKey: queryKeys.rankingGroup(groupId),
-    queryFn: () => rankingApi.group(groupId),
+  // Busca ranking global
+  const { data: allRanking, isLoading: loadingRanking } = useQuery({
+    queryKey: queryKeys.ranking,
+    queryFn: () => rankingApi.list(),
     refetchInterval: 15_000,
     staleTime: 5_000,
+  });
+
+  // Busca membros do grupo
+  const { data: groupMembers, isLoading: loadingMembers } = useQuery({
+    queryKey: queryKeys.bolaoGroupMembers(groupId),
+    queryFn: () => bolaoGroupsApi.members(groupId),
     enabled: !!groupId,
   });
+
+  // Filtra ranking para mostrar apenas membros do grupo
+  const ranking = allRanking && groupMembers
+    ? allRanking
+        .filter(entry => groupMembers.some(member => member.userId === entry.userId))
+        .map((entry, index) => ({ ...entry, position: index + 1 }))
+    : allRanking;
+
+  const isLoading = loadingRanking || loadingMembers;
 
   if (isLoading) {
     return (
       <div className="space-y-2">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={`skeleton-${i}`} className="skeleton h-16 rounded-2xl" />
+          <div key={`loading-skeleton-${i}`} className="skeleton h-16 rounded-2xl" />
         ))}
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-8 text-red-500">
-        <p className="font-medium">Erro ao carregar ranking</p>
       </div>
     );
   }

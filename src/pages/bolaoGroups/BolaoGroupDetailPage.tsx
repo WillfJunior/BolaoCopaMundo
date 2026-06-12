@@ -206,7 +206,7 @@ export function BolaoGroupDetailPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
           >
-            {id && <DetailedRankingLeaderboard groupId={id} />}
+            {id && <DetailedRankingLeaderboard groupId={id} userId={userId} />}
           </motion.div>
         )}
 
