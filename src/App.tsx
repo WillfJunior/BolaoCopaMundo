@@ -9,6 +9,7 @@ import { PageTransition } from './components/layout/PageTransition';
 import { PWAInstallModal } from './components/ui/PWAInstallModal';
 import { useAuthStore } from './store/authStore';
 import { initAxiosAuth } from './api/axios';
+import { useRankingHub } from './hooks/useRankingHub';
 
 // Eager — auth pages (small, needed on first load)
 import { LoginPage } from './pages/auth/LoginPage';
@@ -68,6 +69,7 @@ function Wrap({ children }: { children: React.ReactNode }) {
 
 function AppLayout() {
   const location = useLocation();
+  useRankingHub();
 
   return (
     <div className="flex flex-col min-h-dvh">
