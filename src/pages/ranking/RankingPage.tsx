@@ -13,15 +13,15 @@ export function RankingPage() {
   const { data: ranking, isLoading, dataUpdatedAt, refetch, isFetching } = useQuery({
     queryKey: queryKeys.ranking,
     queryFn: rankingApi.list,
-    refetchInterval: 60_000,
-    staleTime: 30_000,
+    refetchInterval: 15_000,
+    staleTime: 5_000,
   });
 
   const { data: myRanking } = useQuery({
     queryKey: queryKeys.myRanking,
     queryFn: rankingApi.me,
-    refetchInterval: 60_000,
-    staleTime: 30_000,
+    refetchInterval: 15_000,
+    staleTime: 5_000,
   });
 
   const top3 = ranking?.slice(0, 3) ?? [];
@@ -46,7 +46,7 @@ export function RankingPage() {
         <div className="flex items-center justify-between mb-6 relative">
           <div>
             <h1 className="text-xl font-black text-white">🏆 Ranking</h1>
-            <p className="text-xs text-slate-400 mt-0.5">Atualiza a cada 60 segundos</p>
+            <p className="text-xs text-slate-400 mt-0.5">Atualiza a cada jogo</p>
           </div>
           <motion.button
             whileTap={{ scale: 0.9 }}
