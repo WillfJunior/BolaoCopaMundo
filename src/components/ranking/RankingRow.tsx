@@ -71,7 +71,8 @@ export function RankingRow({ entry, isMe, index }: Props) {
           )}
         </p>
         <p className="text-[11px] text-slate-400 mt-0.5">
-          ✅ {entry.exactScores} exatos · 🟡 {entry.correctOutcomes} result. · ❌ {entry.totalPredictions - entry.exactScores - entry.correctOutcomes} erros
+          ✅ {entry.exactScores} exatos · 🟡 {entry.correctOutcomes} result.
+          {entry.wrongPredictions != null && ` · ❌ ${entry.wrongPredictions} erros`}
         </p>
       </div>
 
