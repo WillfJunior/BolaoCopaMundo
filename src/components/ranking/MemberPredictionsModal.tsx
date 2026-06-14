@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { X, AlertCircle, Clock, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { bolaoGroupsApi } from '../../api/bolaoGroups';
-import { queryKeys } from '../../types/api';
+import { queryKeys, MatchStatus } from '../../types/api';
 import { UserAvatar } from '../ui/UserAvatar';
 import { formatMatchDate, getImageUrl } from '../../utils/formatters';
 import { cn } from '../../utils/cn';
@@ -101,24 +101,57 @@ export function MemberPredictionsModal({
                       <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
                         <Clock size={20} className="text-amber-600 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-sm font-semibold text-amber-800">Prazo não encerrado</p>
+                          <p className="text-sm font-semibold text-amber-800">Palpite não disponível</p>
                           <p className="text-xs text-amber-700 mt-1">
-                            Você poderá visualizar este palpite a partir de 1 hora antes do jogo.
+                            Você poderá visualizar este palpite quando o jogo começar ou a partir de 1 hora antes do seu início.
                           </p>
                         </div>
                       </div>
                     )}
 
                     {/* Match Card */}
-                    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+                    <div className={cn(
+                      'bg-white border rounded-2xl overflow-hidden',
+                      data.prediction.matchStatus === MatchStatus.InProgress
+                        ? 'border-green-300 shadow-md shadow-green-100'
+                        : 'border-slate-200'
+                    )}>
+                      {/* Live indicator */}
+                      {data.prediction.matchStatus === MatchStatus.InProgress && (
+                        <div className="h-0.5 bg-linear-to-r from-green-400 via-emerald-300 to-green-500" />
+                      )}
+
                       {/* Match header */}
-                      <div className="bg-gradient-to-r from-slate-50 to-slate-100 px-4 py-3 border-b border-slate-200">
+                      <div className={cn(
+                        'px-4 py-3 border-b',
+                        data.prediction.matchStatus === MatchStatus.InProgress
+                          ? 'bg-linear-to-r from-green-50 to-green-100 border-green-200'
+                          : 'bg-linear-to-r from-slate-50 to-slate-100 border-slate-200'
+                      )}>
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-xs text-slate-600">
-                            <Clock size={12} />
-                            {formatMatchDate(data.prediction.matchDate)}
+                          <div className="flex items-center gap-2">
+                            {data.prediction.matchStatus === MatchStatus.InProgress && (
+                              <span className="flex items-center gap-1.5 text-xs font-bold text-green-600">
+                                <span className="relative flex h-2 w-2">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                                </span>
+                                AO VIVO
+                              </span>
+                            )}
+                            {data.prediction.matchStatus !== MatchStatus.InProgress && (
+                              <div className="flex items-center gap-2 text-xs text-slate-600">
+                                <Clock size={12} />
+                                {formatMatchDate(data.prediction.matchDate)}
+                              </div>
+                            )}
                           </div>
-                          <span className="text-xs font-medium text-slate-500 bg-slate-200 px-2 py-1 rounded-full">
+                          <span className={cn(
+                            'text-xs font-medium px-2 py-1 rounded-full',
+                            data.prediction.matchStatus === MatchStatus.InProgress
+                              ? 'bg-green-200 text-green-700'
+                              : 'bg-slate-200 text-slate-500'
+                          )}>
                             Rodada {data.prediction.matchday}
                           </span>
                         </div>
