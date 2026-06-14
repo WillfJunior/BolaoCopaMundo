@@ -5,12 +5,16 @@ import { ptBR } from 'date-fns/locale';
 const BRT = 'America/Sao_Paulo';
 
 /**
- * Formats a UTC ISO date string directly in BRT (America/Sao_Paulo).
- * Uses formatInTimeZone which is the safe API in date-fns-tz v3 —
- * avoids the toZonedTime + format pattern that can show UTC instead of BRT.
+ * Formats a match date string.
+ * Backend sends dates without explicit timezone but in BRT (America/Sao_Paulo).
+ * JavaScript interprets naive ISO strings as UTC, so we add 3 hours to correct the offset.
  */
 export function formatMatchDate(dateStr: string): string {
-  return formatInTimeZone(new Date(dateStr), BRT, "dd/MM 'às' HH:mm", {
+  const date = new Date(dateStr);
+  // Backend sends in BRT without timezone, JS interprets as UTC
+  // Add 3 hours to align with actual BRT time
+  date.setHours(date.getHours() + 3);
+  return formatInTimeZone(date, BRT, "dd/MM 'às' HH:mm", {
     locale: ptBR,
   });
 }
