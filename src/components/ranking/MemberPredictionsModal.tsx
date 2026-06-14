@@ -5,6 +5,7 @@ import { bolaoGroupsApi } from '../../api/bolaoGroups';
 import { queryKeys } from '../../types/api';
 import { UserAvatar } from '../ui/UserAvatar';
 import { formatMatchDate, getImageUrl } from '../../utils/formatters';
+import { cn } from '../../utils/cn';
 
 interface MemberPredictionsModalProps {
   isOpen: boolean;
@@ -129,13 +130,16 @@ export function MemberPredictionsModal({
                           {/* Home team */}
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                              {data.prediction.homeTeam.flagUrl && (
-                                <img
-                                  src={getImageUrl(data.prediction.homeTeam.flagUrl)}
-                                  alt={data.prediction.homeTeam.name}
-                                  className="w-8 h-5 rounded object-cover"
-                                />
-                              )}
+                              {(() => {
+                                const flagUrl = getImageUrl(data.prediction.homeTeam.flagUrl);
+                                return flagUrl ? (
+                                  <img
+                                    src={flagUrl}
+                                    alt={data.prediction.homeTeam.name}
+                                    className="w-8 h-5 rounded object-cover"
+                                  />
+                                ) : null;
+                              })()}
                               <span className="text-sm font-semibold text-slate-700">
                                 {data.prediction.homeTeam.name}
                               </span>
@@ -171,13 +175,16 @@ export function MemberPredictionsModal({
                               <span className="text-sm font-semibold text-slate-700">
                                 {data.prediction.awayTeam.name}
                               </span>
-                              {data.prediction.awayTeam.flagUrl && (
-                                <img
-                                  src={getImageUrl(data.prediction.awayTeam.flagUrl)}
-                                  alt={data.prediction.awayTeam.name}
-                                  className="w-8 h-5 rounded object-cover"
-                                />
-                              )}
+                              {(() => {
+                                const flagUrl = getImageUrl(data.prediction.awayTeam.flagUrl);
+                                return flagUrl ? (
+                                  <img
+                                    src={flagUrl}
+                                    alt={data.prediction.awayTeam.name}
+                                    className="w-8 h-5 rounded object-cover"
+                                  />
+                                ) : null;
+                              })()}
                             </div>
                             <div className="text-xs text-slate-500 text-right">
                               Palpite: <span className="font-bold text-slate-700">{data.prediction.predictedAwayScore}</span>
