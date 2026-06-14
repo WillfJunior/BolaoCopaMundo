@@ -62,6 +62,43 @@ export interface PredictionDto {
   updatedAt: string;
 }
 
+export interface MemberPredictionDto {
+  memberId: string;
+  memberName: string;
+  memberPhotoUrl: string | null;
+  groupId: string;
+  nextMatchId: number;
+  nextMatchDate: string;
+  predictionDeadline: string;
+  canViewPredictions: boolean;
+  prediction: {
+    predictionId: string;
+    matchId: number;
+    homeTeam: {
+      id: number;
+      name: string;
+      flagUrl: string;
+    };
+    awayTeam: {
+      id: number;
+      name: string;
+      flagUrl: string;
+    };
+    predictedHomeScore: number;
+    predictedAwayScore: number;
+    actualHomeScore: number | null;
+    actualAwayScore: number | null;
+    points: number;
+    isProcessed: boolean;
+    matchStatus: string;
+    matchDate: string;
+    venue: string;
+    matchLabel: string;
+    matchday: number;
+    phase: MatchPhase;
+  };
+}
+
 // ─── Ranking ──────────────────────────────────────────────────────────────────
 export interface RankingEntryDto {
   position: number;
@@ -174,6 +211,7 @@ export const queryKeys = {
   upcoming: (hours: number) => ['matches', 'upcoming', hours] as const,
   predictions: (groupId: string) => ['predictions', groupId] as const,
   predictionForMatch: (matchId: number, groupId: string) => ['predictions', 'match', matchId, groupId] as const,
+  memberPredictions: (groupId: string, memberId: string) => ['bolao-groups', groupId, 'members', memberId, 'predictions'] as const,
   ranking: ['ranking'] as const,
   myRanking: ['ranking', 'me'] as const,
   rankingByGroup: ['ranking', 'by-group'] as const,

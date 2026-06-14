@@ -5,6 +5,7 @@ import type {
   GroupInviteInfoDto,
   RankingEntryDto,
   GroupRankingDetailedDto,
+  MemberPredictionDto,
 } from '../types/api';
 
 export const bolaoGroupsApi = {
@@ -49,4 +50,11 @@ export const bolaoGroupsApi = {
 
   rankingDetailed: (id: string) =>
     api.get<GroupRankingDetailedDto>(`/api/bolao-groups/${id}/ranking/detailed`).then((r) => r.data),
+
+  memberPredictions: (groupId: string, memberId: string) =>
+    api
+      .get<MemberPredictionDto>(
+        `/api/bolao-groups/${groupId}/members/${memberId}/predictions`
+      )
+      .then((r) => r.data),
 };

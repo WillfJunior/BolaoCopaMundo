@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { rankingApi } from '../../api/ranking';
 import { queryKeys } from '../../types/api';
 import { RankingRow } from './RankingRow';
+import { MemberPredictionsModal } from './MemberPredictionsModal';
 
 interface DetailedRankingLeaderboardProps {
   readonly groupId: string;
@@ -13,6 +15,13 @@ export function DetailedRankingLeaderboard({
   groupId,
   userId,
 }: DetailedRankingLeaderboardProps) {
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleViewPredictions = (memberId: string) => {
+    setSelectedMemberId(memberId);
+    setIsModalOpen(true);
+  };
   // Busca rankings de todos os grupos do usuário
   const { data: allGroupRankings, isLoading } = useQuery({
     queryKey: queryKeys.rankingByGroup,
@@ -44,19 +53,31 @@ export function DetailedRankingLeaderboard({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-2"
-    >
-      {ranking.map((entry, i) => (
-        <RankingRow
-          key={entry.userId}
-          entry={entry}
-          isMe={entry.userId === userId}
-          index={i}
+    <>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-2"
+      >
+        {ranking.map((entry, i) => (
+          <RankingRow
+            key={entry.userId}
+            entry={entry}
+            isMe={entry.userId === userId}
+            index={i}
+            onViewPredictions={handleViewPredictions}
+          />
+        ))}
+      </motion.div>
+
+      {selectedMemberId && (
+        <MemberPredictionsModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          groupId={groupId}
+          memberId={selectedMemberId}
         />
-      ))}
-    </motion.div>
+      )}
+    </>
   );
 }

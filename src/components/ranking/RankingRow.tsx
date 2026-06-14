@@ -4,9 +4,10 @@ import { cn } from '../../utils/cn';
 import { UserAvatar } from '../ui/UserAvatar';
 
 interface Props {
-  entry: RankingEntryDto;
-  isMe: boolean;
-  index: number;
+  readonly entry: RankingEntryDto;
+  readonly isMe: boolean;
+  readonly index: number;
+  readonly onViewPredictions?: (memberId: string) => void;
 }
 
 const medals = ['🥇', '🥈', '🥉'];
@@ -16,7 +17,7 @@ const podiumColors = [
   'from-orange-50 to-amber-50/50 border-orange-200',
 ];
 
-export function RankingRow({ entry, isMe, index }: Props) {
+export function RankingRow({ entry, isMe, index, onViewPredictions }: Props) {
   const medal = entry.position <= 3 ? medals[entry.position - 1] : null;
   const isPodium = entry.position <= 3;
 
@@ -25,12 +26,14 @@ export function RankingRow({ entry, isMe, index }: Props) {
       initial={{ opacity: 0, x: -16 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.04, ease: 'easeOut' as const }}
+      onClick={() => !isMe && onViewPredictions?.(entry.userId)}
       className={cn(
         'flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all',
+        !isMe && onViewPredictions && 'cursor-pointer',
         isMe
           ? 'bg-linear-to-r from-green-50 to-emerald-50 border-green-300 shadow-sm shadow-green-100'
           : isPodium
-            ? `bg-linear-to-r ${podiumColors[entry.position - 1]} shadow-sm`
+            ? `bg-linear-to-r ${podiumColors[entry.position - 1]} shadow-sm hover:shadow-md`
             : 'bg-white border-slate-100 hover:border-slate-200 hover:shadow-sm'
       )}
     >
