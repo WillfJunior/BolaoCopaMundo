@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { X, AlertCircle, Clock, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { bolaoGroupsApi } from '../../api/bolaoGroups';
-import { queryKeys, MatchStatus } from '../../types/api';
+import { queryKeys } from '../../types/api';
 import { UserAvatar } from '../ui/UserAvatar';
 import { formatMatchDate, getImageUrl } from '../../utils/formatters';
 import { cn } from '../../utils/cn';
@@ -112,25 +112,25 @@ export function MemberPredictionsModal({
                     {/* Match Card */}
                     <div className={cn(
                       'bg-white border rounded-2xl overflow-hidden',
-                      data.prediction.matchStatus === MatchStatus.InProgress
+                      data.prediction.matchStatus === 'InProgress'
                         ? 'border-green-300 shadow-md shadow-green-100'
                         : 'border-slate-200'
                     )}>
                       {/* Live indicator */}
-                      {data.prediction.matchStatus === MatchStatus.InProgress && (
+                      {data.prediction.matchStatus === 'InProgress' && (
                         <div className="h-0.5 bg-linear-to-r from-green-400 via-emerald-300 to-green-500" />
                       )}
 
                       {/* Match header */}
                       <div className={cn(
                         'px-4 py-3 border-b',
-                        data.prediction.matchStatus === MatchStatus.InProgress
+                        data.prediction.matchStatus === 'InProgress'
                           ? 'bg-linear-to-r from-green-50 to-green-100 border-green-200'
                           : 'bg-linear-to-r from-slate-50 to-slate-100 border-slate-200'
                       )}>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            {data.prediction.matchStatus === MatchStatus.InProgress && (
+                            {data.prediction.matchStatus === 'InProgress' && (
                               <span className="flex items-center gap-1.5 text-xs font-bold text-green-600">
                                 <span className="relative flex h-2 w-2">
                                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
@@ -139,7 +139,7 @@ export function MemberPredictionsModal({
                                 AO VIVO
                               </span>
                             )}
-                            {data.prediction.matchStatus !== MatchStatus.InProgress && (
+                            {data.prediction.matchStatus !== 'InProgress' && (
                               <div className="flex items-center gap-2 text-xs text-slate-600">
                                 <Clock size={12} />
                                 {formatMatchDate(data.prediction.matchDate)}
@@ -148,7 +148,7 @@ export function MemberPredictionsModal({
                           </div>
                           <span className={cn(
                             'text-xs font-medium px-2 py-1 rounded-full',
-                            data.prediction.matchStatus === MatchStatus.InProgress
+                            data.prediction.matchStatus === 'InProgress'
                               ? 'bg-green-200 text-green-700'
                               : 'bg-slate-200 text-slate-500'
                           )}>
