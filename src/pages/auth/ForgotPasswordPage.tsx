@@ -15,10 +15,12 @@ const item = {
 export function ForgotPasswordPage() {
   const navigate = useNavigate();
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [isValidPhone, setIsValidPhone] = useState(false);
+
+  const cleanedPhone = cleanPhone(phoneNumber);
+  const isValidPhone = cleanedPhone.length >= 10;
 
   const { mutate, isPending, isSuccess, data, error } = useMutation({
-    mutationFn: () => authApi.forgotPassword(cleanPhone(phoneNumber)),
+    mutationFn: () => authApi.forgotPassword(cleanedPhone),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -79,15 +81,15 @@ export function ForgotPasswordPage() {
               <h3 className="text-sm font-semibold text-slate-900 mb-3">⚡ Próximos passos:</h3>
               <ol className="text-left text-sm text-slate-600 space-y-2">
                 <li className="flex gap-3">
-                  <span className="font-bold text-green-600 flex-shrink-0">1</span>
+                  <span className="font-bold text-green-600 shrink-0">1</span>
                   <span>Copie a senha temporária do push</span>
                 </li>
                 <li className="flex gap-3">
-                  <span className="font-bold text-green-600 flex-shrink-0">2</span>
+                  <span className="font-bold text-green-600 shrink-0">2</span>
                   <span>Faça login na tela de login</span>
                 </li>
                 <li className="flex gap-3">
-                  <span className="font-bold text-green-600 flex-shrink-0">3</span>
+                  <span className="font-bold text-green-600 shrink-0">3</span>
                   <span>Altere para uma senha de sua preferência</span>
                 </li>
               </ol>
@@ -140,7 +142,7 @@ export function ForgotPasswordPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-6 flex items-start gap-3"
               >
-                <AlertCircle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+                <AlertCircle size={20} className="text-red-600 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-semibold text-red-800">Erro ao recuperar senha</p>
                   <p className="text-xs text-red-700 mt-1">
@@ -162,15 +164,13 @@ export function ForgotPasswordPage() {
               >
                 {/* Phone input */}
                 <motion.div variants={item}>
-                  <label className="block text-sm font-semibold text-slate-900 mb-2">
+                  <label htmlFor="phone" className="block text-sm font-semibold text-slate-900 mb-2">
                     Número de Telefone
                   </label>
                   <PhoneInput
+                    id="phone"
                     value={phoneNumber}
-                    onChange={(value, isValid) => {
-                      setPhoneNumber(value);
-                      setIsValidPhone(isValid);
-                    }}
+                    onChange={setPhoneNumber}
                     placeholder="(11) 98765-4321"
                     disabled={isPending}
                   />
