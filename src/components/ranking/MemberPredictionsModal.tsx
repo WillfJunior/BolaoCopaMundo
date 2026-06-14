@@ -139,12 +139,10 @@ export function MemberPredictionsModal({
                                 AO VIVO
                               </span>
                             )}
-                            {data.prediction.matchStatus !== 'InProgress' && (
-                              <div className="flex items-center gap-2 text-xs text-slate-600">
-                                <Clock size={12} />
-                                {formatMatchDate(data.prediction.matchDate)}
-                              </div>
-                            )}
+                            <div className="flex items-center gap-2 text-xs text-slate-600">
+                              <Clock size={12} />
+                              {formatMatchDate(data.prediction.matchDate)}
+                            </div>
                           </div>
                           <span className={cn(
                             'text-xs font-medium px-2 py-1 rounded-full',
