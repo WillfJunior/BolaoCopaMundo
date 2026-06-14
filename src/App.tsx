@@ -14,6 +14,7 @@ import { useRankingHub } from './hooks/useRankingHub';
 // Eager — auth pages (small, needed on first load)
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
+import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
 
 // Lazy — route-based code splitting
 const GroupListPage = lazy(() =>
@@ -130,6 +131,7 @@ export function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         {/* Join via invite link — accessible before auth (redirect inside) */}
         <Route
           path="/join/:code"

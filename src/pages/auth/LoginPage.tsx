@@ -171,6 +171,15 @@ export function LoginPage() {
               </button>
             </motion.div>
 
+            <motion.div variants={item} className="text-center text-sm pt-2">
+              <Link
+                to="/forgot-password"
+                className="text-slate-500 hover:text-slate-700 transition-colors"
+              >
+                Esqueceu a senha?
+              </Link>
+            </motion.div>
+
             <motion.p variants={item} className="text-center text-sm text-slate-500 pt-1">
               Não tem conta?{' '}
               <Link

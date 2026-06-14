@@ -10,4 +10,9 @@ export const authApi = {
 
   changePassword: (data: { currentPassword: string; newPassword: string }) =>
     api.post('/api/auth/change-password', data),
+
+  forgotPassword: (phoneNumber: string) =>
+    api
+      .post<{ message: string; userName: string }>('/api/auth/forgot-password', { phoneNumber })
+      .then((r) => r.data),
 };
