@@ -49,6 +49,12 @@ const JoinGroupPage = lazy(() =>
 const GroupStagePredictionsPage = lazy(() =>
   import('./pages/bolaoGroups/GroupStagePredictionsPage').then((m) => ({ default: m.GroupStagePredictionsPage }))
 );
+const CopaStandingsPage = lazy(() =>
+  import('./pages/standings/CopaStandingsPage').then((m) => ({ default: m.CopaStandingsPage }))
+);
+const DashboardPage = lazy(() =>
+  import('./pages/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage }))
+);
 
 initAxiosAuth(
   () => useAuthStore.getState().token,
@@ -80,10 +86,11 @@ function AppLayout() {
           <AnimatePresence mode="wait" initial={false}>
             <Routes location={location} key={location.pathname}>
               <Route element={<PrivateRoute />}>
-                <Route path="/" element={<Wrap><GroupListPage /></Wrap>} />
+                <Route path="/" element={<Wrap><DashboardPage /></Wrap>} />
                 <Route path="/groups/:name" element={<Wrap><GroupDetailPage /></Wrap>} />
                 <Route path="/matches/:id" element={<Wrap><MatchDetailPage /></Wrap>} />
                 <Route path="/predictions" element={<Wrap><MyPredictionsPage /></Wrap>} />
+                <Route path="/standings" element={<Wrap><CopaStandingsPage /></Wrap>} />
                 {/* Ranking is per bolão group — redirect legacy URL */}
                 <Route path="/ranking" element={<Navigate to="/meus-grupos" replace />} />
                 <Route path="/profile" element={<Wrap><ProfilePage /></Wrap>} />

@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
-import { ArrowLeft, LogOut, Trash2, Loader2, CheckCircle, X, Clock } from 'lucide-react';
+import { ArrowLeft, LogOut, Trash2, Loader2, CheckCircle, X, Clock, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { bolaoGroupsApi } from '../../api/bolaoGroups';
 import { groupsApi } from '../../api/groups';
@@ -12,6 +12,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useGroupStore } from '../../store/groupStore';
 import { RankingRow } from '../../components/ranking/RankingRow';
 import { DetailedRankingLeaderboard } from '../../components/ranking/DetailedRankingLeaderboard';
+import { RealTimeLeaderboard } from '../../components/ranking/RealTimeLeaderboard';
 import { MemberRow } from '../../components/bolaoGroup/MemberRow';
 import { InviteCard } from '../../components/bolaoGroup/InviteCard';
 import { MatchCard } from '../../components/match/MatchCard';
@@ -30,6 +31,7 @@ export function BolaoGroupDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [showRealTimeRanking, setShowRealTimeRanking] = useState(false);
   const qc = useQueryClient();
   const userId = useAuthStore((s) => s.user?.id);
   const setActiveGroup = useGroupStore((s) => s.setActiveGroup);
@@ -205,8 +207,37 @@ export function BolaoGroupDetailPage() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
+            className="space-y-4"
           >
-            {id && <DetailedRankingLeaderboard groupId={id} userId={userId} />}
+            {/* Toggle Real-Time Ranking */}
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowRealTimeRanking(!showRealTimeRanking)}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${
+                showRealTimeRanking
+                  ? 'bg-linear-to-r from-green-600 to-emerald-600 text-white shadow-lg shadow-green-200/50'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Zap size={18} />
+                <span className="font-semibold">
+                  {showRealTimeRanking ? 'Ranking em Tempo Real' : 'Ver em Tempo Real'}
+                </span>
+              </div>
+              <span className="text-sm opacity-70">
+                {showRealTimeRanking ? '⚡' : '→'}
+              </span>
+            </motion.button>
+
+            {/* Content */}
+            {id && (
+              showRealTimeRanking ? (
+                <RealTimeLeaderboard groupId={id} userId={userId} />
+              ) : (
+                <DetailedRankingLeaderboard groupId={id} userId={userId} />
+              )
+            )}
           </motion.div>
         )}
 

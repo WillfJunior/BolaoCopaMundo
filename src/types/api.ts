@@ -139,6 +139,48 @@ export interface UserRankingsByGroupDto {
   rankings: RankingEntryDto[];
 }
 
+// ─── Ranking em Tempo Real ────────────────────────────────────────────────────
+export interface RealTimeRankingEntryDto {
+  position: number;
+  userId: string;
+  userName: string;
+  userPhotoUrl: string | null;
+  totalPoints: number;
+  exactScores: number;
+  correctOutcomes: number;
+  totalPredictions: number;
+  errors: number;
+  momentaryPoints: number;
+  momentaryPosition: number;
+  positionChange: number;
+  isLeader: boolean;
+  pointsDifference: number;
+  updatedAt: string;
+}
+
+// ─── Classificação dos Grupos (Copa) ───────────────────────────────────────────
+export interface TeamStandingDto {
+  teamId: number;
+  teamName: string;
+  fifaCode: string;
+  flagUrl: string | null;
+  position: number;
+  played: number;
+  won: number;
+  drawn: number;
+  lost: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  points: number;
+}
+
+export interface GroupStandingDto {
+  groupName: string;
+  teams: TeamStandingDto[];
+  matches: MatchDto[];
+}
+
 // ─── Grupos do Bolão ──────────────────────────────────────────────────────────
 export interface BolaoGroupDto {
   id: string;
@@ -222,5 +264,8 @@ export const queryKeys = {
   bolaoGroupRanking: (id: string) => ['bolao-groups', id, 'ranking'] as const,
   bolaoGroupRankingDetailed: (id: string) => ['bolao-groups', id, 'ranking', 'detailed'] as const,
   rankingGroup: (id: string) => ['ranking', 'group', id] as const,
+  realTimeRankingGroup: (id: string) => ['ranking', 'group', id, 'real-time'] as const,
+  standingsGroup: (name: string) => ['standings', 'group', name] as const,
+  standingsAll: ['standings', 'all'] as const,
   bolaoInvite: (code: string) => ['bolao-invite', code] as const,
 };
