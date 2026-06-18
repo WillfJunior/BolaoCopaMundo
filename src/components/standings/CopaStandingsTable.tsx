@@ -23,10 +23,11 @@ export function CopaStandingsTable({ teams, isLoading }: CopaStandingsTableProps
       {/* Header */}
       <div className="grid grid-cols-12 gap-2 px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
         <div className="col-span-1 text-center">#</div>
-        <div className="col-span-5">Time</div>
+        <div className="col-span-4">Time</div>
         <div className="col-span-1 text-center">J</div>
-        <div className="col-span-1 text-center">SG</div>
+        <div className="col-span-1 text-center">GM</div>
         <div className="col-span-1 text-center">GC</div>
+        <div className="col-span-1 text-center">SG</div>
         <div className="col-span-2 text-right">Pts</div>
       </div>
 
@@ -62,7 +63,7 @@ export function CopaStandingsTable({ teams, isLoading }: CopaStandingsTableProps
           </div>
 
           {/* Team */}
-          <div className="col-span-5 flex items-center gap-2 min-w-0">
+          <div className="col-span-4 flex items-center gap-2 min-w-0">
             {team.flagUrl && (
               <img
                 src={team.flagUrl}
@@ -80,14 +81,21 @@ export function CopaStandingsTable({ teams, isLoading }: CopaStandingsTableProps
             {team.played}
           </div>
 
-          {/* Goals For */}
+          {/* Goals For (Gols Marcados) */}
           <div className="col-span-1 text-center text-xs font-medium text-slate-600">
             {team.goalsFor}
           </div>
 
-          {/* Goals Against */}
+          {/* Goals Against (Gols Contra) */}
           <div className="col-span-1 text-center text-xs font-medium text-slate-600">
             {team.goalsAgainst}
+          </div>
+
+          {/* Goal Difference (Saldo de Gols) */}
+          <div className="col-span-1 text-center text-xs font-medium">
+            <span className={team.goalDifference > 0 ? 'text-green-600 font-semibold' : team.goalDifference < 0 ? 'text-red-600 font-semibold' : 'text-slate-600'}>
+              {team.goalDifference > 0 ? '+' : ''}{team.goalDifference}
+            </span>
           </div>
 
           {/* Points */}
@@ -105,8 +113,9 @@ export function CopaStandingsTable({ teams, isLoading }: CopaStandingsTableProps
         <p className="font-semibold">Legenda:</p>
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div>J = Jogos</div>
-          <div>SG = Saldo de Gols</div>
+          <div>GM = Gols Marcados</div>
           <div>GC = Gols Contra</div>
+          <div>SG = Saldo de Gols</div>
           <div>Pts = Pontos</div>
         </div>
       </div>
