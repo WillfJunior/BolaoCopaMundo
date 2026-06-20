@@ -1,24 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { X, AlertCircle, Clock, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { formatInTimeZone } from 'date-fns-tz';
-import { ptBR } from 'date-fns/locale';
 import { bolaoGroupsApi } from '../../api/bolaoGroups';
 import { queryKeys } from '../../types/api';
 import { UserAvatar } from '../ui/UserAvatar';
-import { getImageUrl } from '../../utils/formatters';
+import { getImageUrl, formatMatchDate } from '../../utils/formatters';
 import { cn } from '../../utils/cn';
-
-const BRT = 'America/Sao_Paulo';
-
-function formatPredictionMatchDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  // Subtract 3 hours to correct backend offset (only for predictions modal)
-  const correctedDate = new Date(date.getTime() - 3 * 60 * 60 * 1000);
-  return formatInTimeZone(correctedDate, BRT, "dd/MM 'às' HH:mm", {
-    locale: ptBR,
-  });
-}
 
 interface MemberPredictionsModalProps {
   isOpen: boolean;
@@ -154,7 +141,7 @@ export function MemberPredictionsModal({
                             )}
                             <div className="flex items-center gap-2 text-xs text-slate-600">
                               <Clock size={12} />
-                              {formatPredictionMatchDate(data.prediction.matchDate)}
+                              {formatMatchDate(data.prediction.matchDate)}
                             </div>
                           </div>
                           <span className={cn(
