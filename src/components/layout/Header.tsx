@@ -6,6 +6,7 @@ import { UserAvatar } from '../ui/UserAvatar';
 
 const TITLES: Record<string, string> = {
   '/': 'Copa do Mundo 2026',
+  '/ao-vivo': 'Jogos ao Vivo',
   '/ranking': 'Ranking Geral',
   '/predictions': 'Meus Palpites',
   '/profile': 'Meu Perfil',

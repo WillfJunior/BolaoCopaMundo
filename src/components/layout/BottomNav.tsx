@@ -1,4 +1,4 @@
-import { Home, Users, Target, User } from 'lucide-react';
+import { Home, Users, Target, User, Radio } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
@@ -48,10 +48,13 @@ export function BottomNav() {
 
   const hasLive = upcoming?.some((m) => m.status === MatchStatus.InProgress) ?? false;
 
+  const liveItems = hasLive ? [{ to: '/ao-vivo', icon: Radio, label: 'Ao Vivo', exact: false }] : [];
+  const allItems = [...liveItems, ...NAV_ITEMS];
+
   return (
     <nav className="fixed bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] pb-safe">
       <div className="max-w-2xl mx-auto flex items-stretch h-16">
-        {NAV_ITEMS.map(({ to, icon: Icon, label, exact, badgeKey }) => {
+        {allItems.map(({ to, icon: Icon, label, exact, badgeKey }) => {
           const badge = badgeKey === 'unpredicted' ? unpredicted : 0;
 
           return (

@@ -55,6 +55,9 @@ const CopaStandingsPage = lazy(() =>
 const DashboardPage = lazy(() =>
   import('./pages/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage }))
 );
+const LivePage = lazy(() =>
+  import('./pages/live/LivePage').then((m) => ({ default: m.LivePage }))
+);
 
 initAxiosAuth(
   () => useAuthStore.getState().token,
@@ -87,6 +90,7 @@ function AppLayout() {
             <Routes location={location} key={location.pathname}>
               <Route element={<PrivateRoute />}>
                 <Route path="/" element={<Wrap><DashboardPage /></Wrap>} />
+                <Route path="/ao-vivo" element={<Wrap><LivePage /></Wrap>} />
                 <Route path="/groups/:name" element={<Wrap><GroupDetailPage /></Wrap>} />
                 <Route path="/matches/:id" element={<Wrap><MatchDetailPage /></Wrap>} />
                 <Route path="/predictions" element={<Wrap><MyPredictionsPage /></Wrap>} />
