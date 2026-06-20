@@ -5,17 +5,16 @@ import { ptBR } from 'date-fns/locale';
 const BRT = 'America/Sao_Paulo';
 
 export function formatMatchDate(dateStr: string): string {
-  return formatInTimeZone(
-    new Date(dateStr),
-    BRT,
-    "dd/MM 'às' HH:mm",
-    { locale: ptBR }
-  );
+  const brtDate = toZonedTime(new Date(dateStr), BRT);
+  return formatInTimeZone(brtDate, BRT, "dd/MM 'às' HH:mm", {
+    locale: ptBR,
+  });
 }
 
 export function formatFullDate(dateStr: string): string {
+  const brtDate = toZonedTime(new Date(dateStr), BRT);
   return formatInTimeZone(
-    new Date(dateStr),
+    brtDate,
     BRT,
     "EEEE, dd 'de' MMMM 'de' yyyy 'às' HH:mm",
     { locale: ptBR }
