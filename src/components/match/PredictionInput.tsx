@@ -15,8 +15,10 @@ interface Props {
 
 export function PredictionInput({ match, prediction, groupId }: Props) {
   const qc = useQueryClient();
+  const matchDate = new Date(match.matchDate);
+  matchDate.setHours(matchDate.getHours() + 3);
   const isOpen =
-    match.status === MatchStatus.Scheduled && new Date(match.matchDate) > new Date();
+    match.status === MatchStatus.Scheduled && matchDate > new Date();
 
   const [home, setHome] = useState(prediction?.homeScore != null ? String(prediction.homeScore) : '');
   const [away, setAway] = useState(prediction?.awayScore != null ? String(prediction.awayScore) : '');

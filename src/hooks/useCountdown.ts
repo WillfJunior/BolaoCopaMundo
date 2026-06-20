@@ -10,7 +10,9 @@ interface Countdown {
 
 export function useCountdown(targetDate: string): Countdown {
   const calc = () => {
-    const diff = new Date(targetDate).getTime() - Date.now();
+    const date = new Date(targetDate);
+    date.setHours(date.getHours() + 3);
+    const diff = date.getTime() - Date.now();
     if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true };
     const days = Math.floor(diff / 86_400_000);
     const hours = Math.floor((diff % 86_400_000) / 3_600_000);
