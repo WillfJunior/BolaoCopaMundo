@@ -1,20 +1,21 @@
-import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
+import { formatInTimeZone } from 'date-fns-tz';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const BRT = 'America/Sao_Paulo';
 
 export function formatMatchDate(dateStr: string): string {
-  const brtDate = toZonedTime(new Date(dateStr), BRT);
-  return formatInTimeZone(brtDate, BRT, "dd/MM 'às' HH:mm", {
-    locale: ptBR,
-  });
+  return formatInTimeZone(
+    new Date(dateStr),
+    BRT,
+    "dd/MM 'às' HH:mm",
+    { locale: ptBR }
+  );
 }
 
 export function formatFullDate(dateStr: string): string {
-  const brtDate = toZonedTime(new Date(dateStr), BRT);
   return formatInTimeZone(
-    brtDate,
+    new Date(dateStr),
     BRT,
     "EEEE, dd 'de' MMMM 'de' yyyy 'às' HH:mm",
     { locale: ptBR }
@@ -27,7 +28,7 @@ export function formatRelative(dateStr: string): string {
 
 /** Returns a Date object adjusted to BRT wall-clock time (for comparisons). */
 export function toBRT(dateStr: string): Date {
-  return toZonedTime(new Date(dateStr), BRT);
+  return new Date(dateStr);
 }
 
 /**
