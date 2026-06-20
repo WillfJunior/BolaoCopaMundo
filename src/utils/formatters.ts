@@ -6,7 +6,6 @@ const BRT = 'America/Sao_Paulo';
 
 export function formatMatchDate(dateStr: string): string {
   const date = new Date(dateStr);
-  date.setHours(date.getHours() + 3);
   return formatInTimeZone(date, BRT, "dd/MM 'às' HH:mm", {
     locale: ptBR,
   });
@@ -14,7 +13,6 @@ export function formatMatchDate(dateStr: string): string {
 
 export function formatFullDate(dateStr: string): string {
   const date = new Date(dateStr);
-  date.setHours(date.getHours() + 3);
   return formatInTimeZone(
     date,
     BRT,
