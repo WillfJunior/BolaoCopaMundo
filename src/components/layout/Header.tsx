@@ -24,7 +24,7 @@ export function Header() {
   )?.[1] ?? 'Bolão Copa 2026';
 
   return (
-    <header className="sticky top-0 z-40 glass border-b border-white/60">
+    <header className="fixed top-0 inset-x-0 z-40 glass border-b border-white/60">
       {/* Green gradient bar on top */}
       <div className="h-0.5 bg-linear-to-r from-green-500 via-emerald-400 to-green-600" />
 

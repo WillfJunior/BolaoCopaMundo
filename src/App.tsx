@@ -84,7 +84,7 @@ function AppLayout() {
   return (
     <div className="flex flex-col min-h-dvh">
       <Header />
-      <main className="flex-1 bg-slate-50/80">
+      <main className="flex-1 bg-slate-50/80 pt-14">
         <Suspense fallback={<PageLoader />}>
           <AnimatePresence mode="wait" initial={false}>
             <Routes location={location} key={location.pathname}>
