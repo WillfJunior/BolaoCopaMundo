@@ -48,7 +48,7 @@ export function BottomNav() {
 
   const hasLive = upcoming?.some((m) => m.status === MatchStatus.InProgress) ?? false;
 
-  const liveItems = hasLive ? [{ to: '/ao-vivo', icon: Radio, label: 'Ao Vivo', exact: false }] : [];
+  const liveItems: NavItem[] = hasLive ? [{ to: '/ao-vivo', icon: Radio, label: 'Ao Vivo', exact: false }] : [];
   const allItems = [...liveItems, ...NAV_ITEMS];
 
   return (
