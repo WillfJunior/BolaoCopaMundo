@@ -6,6 +6,7 @@ import { type MatchDto, MatchStatus, type PredictionDto, queryKeys } from '../..
 import { toast } from 'react-hot-toast';
 import { Lock, Save, CheckCircle2 } from 'lucide-react';
 import { ScoreBadge } from './ScoreBadge';
+import { isPredictionOpen } from '../../utils/formatters';
 
 interface Props {
   match: MatchDto;
@@ -15,9 +16,8 @@ interface Props {
 
 export function PredictionInput({ match, prediction, groupId }: Props) {
   const qc = useQueryClient();
-  const matchDate = new Date(match.matchDate);
   const isOpen =
-    match.status === MatchStatus.Scheduled && matchDate > new Date();
+    match.status === MatchStatus.Scheduled && isPredictionOpen(match.matchDate);
 
   const [home, setHome] = useState(prediction?.homeScore != null ? String(prediction.homeScore) : '');
   const [away, setAway] = useState(prediction?.awayScore != null ? String(prediction.awayScore) : '');

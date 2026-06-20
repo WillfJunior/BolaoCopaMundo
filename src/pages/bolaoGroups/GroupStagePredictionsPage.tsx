@@ -8,7 +8,7 @@ import { groupsApi } from '../../api/groups';
 import { predictionsApi } from '../../api/predictions';
 import { bolaoGroupsApi } from '../../api/bolaoGroups';
 import { queryKeys, MatchPhase, MatchStatus, type MatchDto } from '../../types/api';
-import { getImageUrl } from '../../utils/formatters';
+import { getImageUrl, isPredictionOpen } from '../../utils/formatters';
 
 type ScoreMap = Record<number, { home: string; away: string }>;
 
@@ -85,7 +85,10 @@ export function GroupStagePredictionsPage() {
   };
 
   const allScheduledMatches = useMemo(
-    () => fifaGroups.flatMap((g) => g.matches).filter((m) => m.status === MatchStatus.Scheduled),
+    () =>
+      fifaGroups
+        .flatMap((g) => g.matches)
+        .filter((m) => m.status === MatchStatus.Scheduled && isPredictionOpen(m.matchDate)),
     [fifaGroups]
   );
 
@@ -210,7 +213,7 @@ export function GroupStagePredictionsPage() {
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden divide-y divide-slate-50">
               {group.matches.map((match) => {
                 const s = getScore(match.id);
-                const isScheduled = match.status === MatchStatus.Scheduled;
+                const isOpen = match.status === MatchStatus.Scheduled && isPredictionOpen(match.matchDate);
                 const isFinished = match.status === MatchStatus.Finished;
                 const hasExisting = predictionMap.has(match.id);
                 const isFilled = s.home !== '' && s.away !== '';
@@ -218,7 +221,7 @@ export function GroupStagePredictionsPage() {
                 return (
                   <div
                     key={match.id}
-                    className={`px-4 py-3 flex items-center gap-3 ${!isScheduled ? 'opacity-60' : ''}`}
+                    className={`px-4 py-3 flex items-center gap-3 ${!isOpen ? 'opacity-60' : ''}`}
                   >
                     {/* Home team */}
                     <div className="flex items-center gap-1.5 flex-1 min-w-0">
@@ -230,7 +233,7 @@ export function GroupStagePredictionsPage() {
 
                     {/* Score inputs */}
                     <div className="flex items-center gap-1.5 shrink-0">
-                      {isScheduled ? (
+                      {isOpen ? (
                         <>
                           <input
                             type="number"

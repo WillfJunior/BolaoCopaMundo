@@ -30,6 +30,11 @@ export function toBRT(dateStr: string): Date {
   return new Date(dateStr);
 }
 
+/** Returns true if predictions are still open (deadline = 1 hour before match). */
+export function isPredictionOpen(matchDateStr: string): boolean {
+  return new Date(matchDateStr).getTime() - 60 * 60 * 1000 > Date.now();
+}
+
 /**
  * Computes points for a prediction given official scores.
  * Mirrors the backend logic so results appear immediately after a match
