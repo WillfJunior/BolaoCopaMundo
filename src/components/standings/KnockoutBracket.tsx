@@ -9,7 +9,6 @@ import { cn } from '../../utils/cn';
 
 const KNOCKOUT_PHASES = [
   { id: MatchPhase.RoundOf32,     label: 'Rodada 32',        grid: true  },
-  { id: MatchPhase.RoundOf16,     label: 'Oitavas de Final', grid: true  },
   { id: MatchPhase.Quarterfinals, label: 'Quartas de Final', grid: false },
   { id: MatchPhase.Semifinals,    label: 'Semifinal',        grid: false },
   { id: MatchPhase.ThirdPlace,    label: '3º Lugar',         grid: false },
