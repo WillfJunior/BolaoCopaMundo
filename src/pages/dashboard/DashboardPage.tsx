@@ -1,18 +1,16 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Trophy } from 'lucide-react';
+import { TrendingUp, Trophy, Swords } from 'lucide-react';
 import { groupsApi } from '../../api/groups';
-import { rankingApi } from '../../api/ranking';
 import { queryKeys } from '../../types/api';
 import { useAuthStore } from '../../store/authStore';
 import { GroupStandingsSection } from '../../components/standings/GroupStandingsSection';
+import { KnockoutBracket } from '../../components/standings/KnockoutBracket';
 import { RealTimeLeaderboard } from '../../components/ranking/RealTimeLeaderboard';
 import { useGroupStore } from '../../store/groupStore';
 
-const GROUPS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-
-type Tab = 'copa' | 'bolao';
+type Tab = 'copa' | 'mata-mata' | 'bolao';
 
 export function DashboardPage() {
   const [tab, setTab] = useState<Tab>('copa');
@@ -34,7 +32,6 @@ export function DashboardPage() {
         animate={{ opacity: 1, y: 0 }}
         className="relative px-4 py-8 bg-linear-to-br from-slate-800 via-slate-900 to-slate-800 rounded-b-3xl overflow-hidden"
       >
-        {/* Decorative elements */}
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
@@ -45,7 +42,6 @@ export function DashboardPage() {
           transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
           className="absolute -left-12 -bottom-12 w-40 h-40 border border-white/5 rounded-full"
         />
-
         <div className="relative">
           <h1 className="text-3xl font-black text-white">🎯 Copa do Mundo 2026</h1>
           <p className="text-slate-300 mt-2 text-sm">
@@ -55,10 +51,11 @@ export function DashboardPage() {
       </motion.div>
 
       {/* Tabs */}
-      <div className="px-4 mt-6 flex gap-2 rounded-xl bg-slate-100 p-1">
+      <div className="px-4 mt-6 flex rounded-xl bg-slate-100 p-1 gap-0.5">
+        {/* Classificação */}
         <motion.button
           onClick={() => setTab('copa')}
-          className="flex-1 relative py-2 px-4 rounded-lg transition-all font-semibold"
+          className="flex-1 relative py-2 px-3 rounded-lg transition-all font-semibold"
         >
           {tab === 'copa' && (
             <motion.div
@@ -67,18 +64,39 @@ export function DashboardPage() {
               transition={{ type: 'spring', stiffness: 500, damping: 35 }}
             />
           )}
-          <span className={`relative z-10 flex items-center justify-center gap-2 ${
+          <span className={`relative z-10 flex items-center justify-center gap-1.5 text-sm ${
             tab === 'copa' ? 'text-amber-700' : 'text-slate-500'
           }`}>
-            <Trophy size={16} />
+            <Trophy size={15} />
             Classificação
           </span>
         </motion.button>
 
+        {/* Mata-mata */}
+        <motion.button
+          onClick={() => setTab('mata-mata')}
+          className="flex-1 relative py-2 px-3 rounded-lg transition-all font-semibold"
+        >
+          {tab === 'mata-mata' && (
+            <motion.div
+              layoutId="dashboard-tab"
+              className="absolute inset-0 bg-white rounded-lg shadow-sm"
+              transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+            />
+          )}
+          <span className={`relative z-10 flex items-center justify-center gap-1.5 text-sm ${
+            tab === 'mata-mata' ? 'text-red-700' : 'text-slate-500'
+          }`}>
+            <Swords size={15} />
+            Mata-mata
+          </span>
+        </motion.button>
+
+        {/* Meu Bolão */}
         {groupId && (
           <motion.button
             onClick={() => setTab('bolao')}
-            className="flex-1 relative py-2 px-4 rounded-lg transition-all font-semibold"
+            className="flex-1 relative py-2 px-3 rounded-lg transition-all font-semibold"
           >
             {tab === 'bolao' && (
               <motion.div
@@ -87,10 +105,10 @@ export function DashboardPage() {
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
-            <span className={`relative z-10 flex items-center justify-center gap-2 ${
+            <span className={`relative z-10 flex items-center justify-center gap-1.5 text-sm ${
               tab === 'bolao' ? 'text-green-700' : 'text-slate-500'
             }`}>
-              <TrendingUp size={16} />
+              <TrendingUp size={15} />
               Meu Bolão
             </span>
           </motion.button>
@@ -128,6 +146,19 @@ export function DashboardPage() {
                   <p className="font-medium">Nenhum dado disponível</p>
                 </div>
               )}
+            </motion.div>
+          )}
+
+          {/* Mata-mata Tab */}
+          {tab === 'mata-mata' && (
+            <motion.div
+              key="mata-mata"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <KnockoutBracket />
             </motion.div>
           )}
 
