@@ -102,6 +102,7 @@ function AppLayout() {
                 <Route path="/meus-grupos" element={<Wrap><MyBolaoGroupsPage /></Wrap>} />
                 <Route path="/meus-grupos/:id" element={<Wrap><BolaoGroupDetailPage /></Wrap>} />
                 <Route path="/meus-grupos/:id/palpites" element={<Wrap><GroupStagePredictionsPage /></Wrap>} />
+                <Route path="/meus-grupos/:id/palpites/:phase" element={<Wrap><GroupStagePredictionsPage /></Wrap>} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

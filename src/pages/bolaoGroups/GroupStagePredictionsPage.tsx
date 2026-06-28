@@ -4,13 +4,23 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { ArrowLeft, Save, Loader2, CheckCircle2, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { groupsApi } from '../../api/groups';
+import { matchesApi } from '../../api/matches';
 import { predictionsApi } from '../../api/predictions';
 import { bolaoGroupsApi } from '../../api/bolaoGroups';
-import { queryKeys, MatchPhase, MatchStatus, type MatchDto } from '../../types/api';
+import { queryKeys, MatchPhase, MatchStatus, type MatchDto, type MatchPhase as MatchPhaseType } from '../../types/api';
 import { getImageUrl } from '../../utils/formatters';
 
 type ScoreMap = Record<number, { home: string; away: string }>;
+
+const phaseLabels: Record<MatchPhaseType, string> = {
+  [MatchPhase.GroupStage]: 'Fase de Grupos',
+  [MatchPhase.RoundOf32]: 'Oitavas de Final',
+  [MatchPhase.RoundOf16]: 'Oitavas de Final',
+  [MatchPhase.Quarterfinals]: 'Quartas de Final',
+  [MatchPhase.Semifinals]: 'Semifinal',
+  [MatchPhase.ThirdPlace]: '3º Lugar',
+  [MatchPhase.Final]: 'Final',
+};
 
 function TeamFlag({ team, size = 'sm' }: { team: MatchDto['homeTeam']; size?: 'sm' | 'md' }) {
   const dim = size === 'md' ? 'w-9 h-6' : 'w-7 h-5';
@@ -26,11 +36,13 @@ function TeamFlag({ team, size = 'sm' }: { team: MatchDto['homeTeam']; size?: 's
 }
 
 export function GroupStagePredictionsPage() {
-  const { id } = useParams<{ id: string }>();
+  const { id, phase: phaseParam } = useParams<{ id: string; phase?: string }>();
   const navigate = useNavigate();
   const [scores, setScores] = useState<ScoreMap>({});
   const [saving, setSaving] = useState(false);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+
+  const phase = phaseParam ? parseInt(phaseParam) : MatchPhase.GroupStage;
 
   const { data: group } = useQuery({
     queryKey: queryKeys.bolaoGroup(id!),
@@ -39,10 +51,15 @@ export function GroupStagePredictionsPage() {
     enabled: !!id,
   });
 
-  const { data: matchGroups, isLoading } = useQuery({
-    queryKey: queryKeys.groups,
-    queryFn: groupsApi.list,
+  const { data: matches, isLoading } = useQuery({
+    queryKey: [
+      ...queryKeys.bolaoGroup(id!),
+      'phase-matches',
+      phase,
+    ],
+    queryFn: () => matchesApi.byPhase(phase),
     staleTime: 5 * 60_000,
+    enabled: !!id,
   });
 
   const { data: existingPredictions } = useQuery({
@@ -52,18 +69,6 @@ export function GroupStagePredictionsPage() {
     enabled: !!id,
   });
 
-  // Group Stage matches only, grouped by FIFA group
-  const fifaGroups = useMemo(() => {
-    if (!matchGroups) return [];
-    return matchGroups
-      .map((g) => ({
-        name: g.name,
-        matches: g.matches.filter((m) => m.phase === MatchPhase.GroupStage),
-      }))
-      .filter((g) => g.matches.length > 0);
-  }, [matchGroups]);
-
-  // Pre-populate scores from existing predictions
   const predictionMap = useMemo(
     () => new Map(existingPredictions?.map((p) => [p.matchId, p]) ?? []),
     [existingPredictions]
@@ -85,8 +90,8 @@ export function GroupStagePredictionsPage() {
   };
 
   const allScheduledMatches = useMemo(
-    () => fifaGroups.flatMap((g) => g.matches).filter((m) => m.status === MatchStatus.Scheduled),
-    [fifaGroups]
+    () => (matches ?? []).filter((m) => m.status === MatchStatus.Scheduled),
+    [matches]
   );
 
   const filledMatches = allScheduledMatches.filter((m) => {
@@ -135,6 +140,7 @@ export function GroupStagePredictionsPage() {
   const filled = filledMatches.length;
   const total = allScheduledMatches.length;
   const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
+  const phaseLabel = phaseLabels[phase as MatchPhaseType] || 'Palpites';
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-4 pb-32 space-y-5">
@@ -148,7 +154,7 @@ export function GroupStagePredictionsPage() {
           <ArrowLeft size={18} className="text-slate-600" />
         </motion.button>
         <div className="flex-1 min-w-0">
-          <h1 className="font-black text-slate-800 text-lg leading-tight">Palpites — Fase de Grupos</h1>
+          <h1 className="font-black text-slate-800 text-lg leading-tight">Palpites — {phaseLabel}</h1>
           {group && <p className="text-xs text-slate-400 truncate">{group.name}</p>}
         </div>
       </div>
@@ -182,116 +188,107 @@ export function GroupStagePredictionsPage() {
         </motion.div>
       )}
 
-      {/* Match groups */}
+      {/* Matches */}
       {isLoading ? (
         <div className="space-y-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="skeleton h-40 rounded-2xl" />
+            <div key={i} className="skeleton h-14 rounded-2xl" />
           ))}
         </div>
-      ) : (
-        fifaGroups.map((group, gi) => (
-          <motion.section
-            key={group.name}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: gi * 0.05 }}
-            className="space-y-2"
-          >
-            <div className="flex items-center gap-2 px-1">
-              <div className="w-6 h-6 rounded-lg bg-green-600 flex items-center justify-center">
-                <span className="text-[10px] font-black text-white">{group.name}</span>
-              </div>
-              <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-                Grupo {group.name}
-              </span>
-            </div>
+      ) : allScheduledMatches.length > 0 ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden divide-y divide-slate-50"
+        >
+          {allScheduledMatches.map((match) => {
+            const s = getScore(match.id);
+            const isScheduled = match.status === MatchStatus.Scheduled;
+            const isFinished = match.status === MatchStatus.Finished;
+            const hasExisting = predictionMap.has(match.id);
+            const isFilled = s.home !== '' && s.away !== '';
 
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden divide-y divide-slate-50">
-              {group.matches.map((match) => {
-                const s = getScore(match.id);
-                const isScheduled = match.status === MatchStatus.Scheduled;
-                const isFinished = match.status === MatchStatus.Finished;
-                const hasExisting = predictionMap.has(match.id);
-                const isFilled = s.home !== '' && s.away !== '';
+            return (
+              <div
+                key={match.id}
+                className={`px-4 py-3 flex items-center gap-3 ${!isScheduled ? 'opacity-60' : ''}`}
+              >
+                {/* Home team */}
+                <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                  <TeamFlag team={match.homeTeam} />
+                  <span className="text-xs font-semibold text-slate-700 truncate">
+                    {match.homeTeam?.name ?? '?'}
+                  </span>
+                </div>
 
-                return (
-                  <div
-                    key={match.id}
-                    className={`px-4 py-3 flex items-center gap-3 ${!isScheduled ? 'opacity-60' : ''}`}
-                  >
-                    {/* Home team */}
-                    <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                      <TeamFlag team={match.homeTeam} />
-                      <span className="text-xs font-semibold text-slate-700 truncate">
-                        {match.homeTeam?.name ?? '?'}
-                      </span>
-                    </div>
-
-                    {/* Score inputs */}
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      {isScheduled ? (
-                        <>
-                          <input
-                            type="number"
-                            inputMode="numeric"
-                            min={0}
-                            max={20}
-                            value={s.home}
-                            onChange={(e) => setScore(match.id, 'home', e.target.value)}
-                            placeholder="–"
-                            className={`w-9 h-9 text-center rounded-lg text-sm font-bold border focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors ${
-                              isFilled
-                                ? hasExisting
-                                  ? 'border-green-300 bg-green-50 text-green-700'
-                                  : 'border-green-400 bg-green-50 text-green-700'
-                                : 'border-slate-200 text-slate-700'
-                            }`}
-                          />
-                          <span className="text-slate-300 font-light text-sm">×</span>
-                          <input
-                            type="number"
-                            inputMode="numeric"
-                            min={0}
-                            max={20}
-                            value={s.away}
-                            onChange={(e) => setScore(match.id, 'away', e.target.value)}
-                            placeholder="–"
-                            className={`w-9 h-9 text-center rounded-lg text-sm font-bold border focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors ${
-                              isFilled
-                                ? hasExisting
-                                  ? 'border-green-300 bg-green-50 text-green-700'
-                                  : 'border-green-400 bg-green-50 text-green-700'
-                                : 'border-slate-200 text-slate-700'
-                            }`}
-                          />
-                        </>
+                {/* Score inputs */}
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {isScheduled ? (
+                    <>
+                      <input
+                        type="number"
+                        inputMode="numeric"
+                        min={0}
+                        max={20}
+                        value={s.home}
+                        onChange={(e) => setScore(match.id, 'home', e.target.value)}
+                        placeholder="–"
+                        className={`w-9 h-9 text-center rounded-lg text-sm font-bold border focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors ${
+                          isFilled
+                            ? hasExisting
+                              ? 'border-green-300 bg-green-50 text-green-700'
+                              : 'border-green-400 bg-green-50 text-green-700'
+                            : 'border-slate-200 text-slate-700'
+                        }`}
+                      />
+                      <span className="text-slate-300 font-light text-sm">×</span>
+                      <input
+                        type="number"
+                        inputMode="numeric"
+                        min={0}
+                        max={20}
+                        value={s.away}
+                        onChange={(e) => setScore(match.id, 'away', e.target.value)}
+                        placeholder="–"
+                        className={`w-9 h-9 text-center rounded-lg text-sm font-bold border focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors ${
+                          isFilled
+                            ? hasExisting
+                              ? 'border-green-300 bg-green-50 text-green-700'
+                              : 'border-green-400 bg-green-50 text-green-700'
+                            : 'border-slate-200 text-slate-700'
+                        }`}
+                      />
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-100">
+                      {isFinished ? (
+                        <span className="text-sm font-bold text-slate-600 tabular-nums">
+                          {match.homeScore} — {match.awayScore}
+                        </span>
                       ) : (
-                        <div className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-100">
-                          {isFinished ? (
-                            <span className="text-sm font-bold text-slate-600 tabular-nums">
-                              {match.homeScore} — {match.awayScore}
-                            </span>
-                          ) : (
-                            <Lock size={13} className="text-slate-400" />
-                          )}
-                        </div>
+                        <Lock size={13} className="text-slate-400" />
                       )}
                     </div>
+                  )}
+                </div>
 
-                    {/* Away team */}
-                    <div className="flex items-center gap-1.5 flex-1 min-w-0 justify-end">
-                      <span className="text-xs font-semibold text-slate-700 truncate text-right">
-                        {match.awayTeam?.name ?? '?'}
-                      </span>
-                      <TeamFlag team={match.awayTeam} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </motion.section>
-        ))
+                {/* Away team */}
+                <div className="flex items-center gap-1.5 flex-1 min-w-0 justify-end">
+                  <span className="text-xs font-semibold text-slate-700 truncate text-right">
+                    {match.awayTeam?.name ?? '?'}
+                  </span>
+                  <TeamFlag team={match.awayTeam} />
+                </div>
+              </div>
+            );
+          })}
+        </motion.div>
+      ) : (
+        <div className="text-center py-12 text-slate-400">
+          <p className="text-4xl mb-3">⚽</p>
+          <p className="font-semibold text-slate-500">Nenhum jogo disponível</p>
+          <p className="text-sm mt-1">Os jogos desta fase aparecerão aqui em breve.</p>
+        </div>
       )}
 
       {/* Floating save bar */}
