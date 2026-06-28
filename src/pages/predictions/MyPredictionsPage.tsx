@@ -5,7 +5,8 @@ import { Target, ChevronRight, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { predictionsApi } from '../../api/predictions';
 import { groupsApi } from '../../api/groups';
-import { queryKeys, type PredictionDto, type MatchDto, MatchStatus } from '../../types/api';
+import { matchesApi } from '../../api/matches';
+import { queryKeys, type PredictionDto, type MatchDto, MatchStatus, MatchPhase } from '../../types/api';
 import { ScoreBadge } from '../../components/match/ScoreBadge';
 import { formatMatchDate, getImageUrl, computePoints } from '../../utils/formatters';
 import { useGroupStore } from '../../store/groupStore';
@@ -59,12 +60,19 @@ export function MyPredictionsPage() {
     staleTime: 5 * 60_000,
   });
 
-  // Build match lookup from groups data
+  const { data: nextPhaseMatches } = useQuery({
+    queryKey: ['matches', 'phase', MatchPhase.RoundOf32],
+    queryFn: () => matchesApi.byPhase(MatchPhase.RoundOf32),
+    staleTime: 5 * 60_000,
+  });
+
+  // Build match lookup from groups data + next phase matches
   const matchMap = useMemo(() => {
     const map = new Map<number, MatchDto>();
     groups?.forEach((g) => g.matches.forEach((m) => map.set(m.id, m)));
+    nextPhaseMatches?.forEach((m) => map.set(m.id, m));
     return map;
-  }, [groups]);
+  }, [groups, nextPhaseMatches]);
 
   // Enrich predictions with effective points
   const enriched = useMemo(
