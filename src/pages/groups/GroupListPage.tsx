@@ -7,7 +7,7 @@ import { matchesApi } from '../../api/matches';
 import { predictionsApi } from '../../api/predictions';
 import { queryKeys, MatchStatus, type GroupDto } from '../../types/api';
 import { MatchCard } from '../../components/match/MatchCard';
-import { formatMatchDate, getImageUrl } from '../../utils/formatters';
+import { formatMatchDate, getImageUrl, isPredictionOpen } from '../../utils/formatters';
 import { useCountdown } from '../../hooks/useCountdown';
 import { useAuthStore } from '../../store/authStore';
 import { useGroupStore } from '../../store/groupStore';
@@ -217,7 +217,7 @@ function CountdownBanner({ targetDate }: { targetDate: string }) {
 
 function GroupCard({ group, predictedIds }: { group: GroupDto; predictedIds: Set<number> }) {
   const totalScheduled = group.matches.filter(
-    (m) => m.status === MatchStatus.Scheduled && new Date(m.matchDate) > new Date()
+    (m) => m.status === MatchStatus.Scheduled && isPredictionOpen(m.matchDate)
   ).length;
   const unpredicted = group.matches.filter(
     (m) =>

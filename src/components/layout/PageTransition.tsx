@@ -19,7 +19,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
       animate="animate"
       exit="exit"
       transition={{ duration: 0.22, ease: 'easeOut' }}
-      className="will-change-transform"
+      className=""
     >
       {children}
     </motion.div>

@@ -6,7 +6,6 @@ const BRT = 'America/Sao_Paulo';
 
 export function formatMatchDate(dateStr: string): string {
   const date = new Date(dateStr);
-  date.setHours(date.getHours() + 3);
   return formatInTimeZone(date, BRT, "dd/MM 'às' HH:mm", {
     locale: ptBR,
   });
@@ -14,7 +13,6 @@ export function formatMatchDate(dateStr: string): string {
 
 export function formatFullDate(dateStr: string): string {
   const date = new Date(dateStr);
-  date.setHours(date.getHours() + 3);
   return formatInTimeZone(
     date,
     BRT,
@@ -30,6 +28,11 @@ export function formatRelative(dateStr: string): string {
 /** Returns a Date object adjusted to BRT wall-clock time (for comparisons). */
 export function toBRT(dateStr: string): Date {
   return new Date(dateStr);
+}
+
+/** Returns true if predictions are still open (deadline = 1 hour before match). */
+export function isPredictionOpen(matchDateStr: string): boolean {
+  return new Date(matchDateStr).getTime() - 60 * 60 * 1000 > Date.now();
 }
 
 /**
