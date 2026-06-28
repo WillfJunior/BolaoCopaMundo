@@ -42,7 +42,7 @@ export function GroupStagePredictionsPage() {
   const [saving, setSaving] = useState(false);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
 
-  const phase = phaseParam ? parseInt(phaseParam) : MatchPhase.GroupStage;
+  const phase: MatchPhaseType = phaseParam ? (parseInt(phaseParam) as MatchPhaseType) : MatchPhase.GroupStage;
 
   const { data: group } = useQuery({
     queryKey: queryKeys.bolaoGroup(id!),
@@ -57,7 +57,7 @@ export function GroupStagePredictionsPage() {
       'phase-matches',
       phase,
     ],
-    queryFn: () => matchesApi.byPhase(phase),
+    queryFn: () => matchesApi.byPhase(phase as MatchPhaseType),
     staleTime: 5 * 60_000,
     enabled: !!id,
   });
