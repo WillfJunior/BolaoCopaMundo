@@ -7,13 +7,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { matchesApi } from '../../api/matches';
 import { predictionsApi } from '../../api/predictions';
 import { bolaoGroupsApi } from '../../api/bolaoGroups';
-<<<<<<< HEAD
 import { queryKeys, MatchPhase, MatchStatus, type MatchDto, type MatchPhase as MatchPhaseType } from '../../types/api';
 import { getImageUrl, isPredictionOpen } from '../../utils/formatters';
-=======
-import { queryKeys, MatchPhase, MatchStatus, type MatchDto } from '../../types/api';
-import { getImageUrl, isPredictionOpen } from '../../utils/formatters';
->>>>>>> e3b7ad5b26bcfd6278dde896a0aa655ff2ec26b9
 
 type ScoreMap = Record<number, { home: string; away: string }>;
 
@@ -208,16 +203,15 @@ export function GroupStagePredictionsPage() {
         >
           {allScheduledMatches.map((match) => {
             const s = getScore(match.id);
-            const isScheduled = match.status === MatchStatus.Scheduled;
+            const isOpen = match.status === MatchStatus.Scheduled && isPredictionOpen(match.matchDate);
             const isFinished = match.status === MatchStatus.Finished;
             const hasExisting = predictionMap.has(match.id);
             const isFilled = s.home !== '' && s.away !== '';
 
-<<<<<<< HEAD
             return (
               <div
                 key={match.id}
-                className={`px-4 py-3 flex items-center gap-3 ${!isScheduled ? 'opacity-60' : ''}`}
+                className={`px-4 py-3 flex items-center gap-3 ${!isOpen ? 'opacity-60' : ''}`}
               >
                 {/* Home team */}
                 <div className="flex items-center gap-1.5 flex-1 min-w-0">
@@ -229,7 +223,7 @@ export function GroupStagePredictionsPage() {
 
                 {/* Score inputs */}
                 <div className="flex items-center gap-1.5 shrink-0">
-                  {isScheduled ? (
+                  {isOpen ? (
                     <>
                       <input
                         type="number"
@@ -271,67 +265,6 @@ export function GroupStagePredictionsPage() {
                         <span className="text-sm font-bold text-slate-600 tabular-nums">
                           {match.homeScore} — {match.awayScore}
                         </span>
-=======
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden divide-y divide-slate-50">
-              {group.matches.map((match) => {
-                const s = getScore(match.id);
-                const isOpen = match.status === MatchStatus.Scheduled && isPredictionOpen(match.matchDate);
-                const isFinished = match.status === MatchStatus.Finished;
-                const hasExisting = predictionMap.has(match.id);
-                const isFilled = s.home !== '' && s.away !== '';
-
-                return (
-                  <div
-                    key={match.id}
-                    className={`px-4 py-3 flex items-center gap-3 ${!isOpen ? 'opacity-60' : ''}`}
-                  >
-                    {/* Home team */}
-                    <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                      <TeamFlag team={match.homeTeam} />
-                      <span className="text-xs font-semibold text-slate-700 truncate">
-                        {match.homeTeam?.name ?? '?'}
-                      </span>
-                    </div>
-
-                    {/* Score inputs */}
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      {isOpen ? (
-                        <>
-                          <input
-                            type="number"
-                            inputMode="numeric"
-                            min={0}
-                            max={20}
-                            value={s.home}
-                            onChange={(e) => setScore(match.id, 'home', e.target.value)}
-                            placeholder="–"
-                            className={`w-9 h-9 text-center rounded-lg text-sm font-bold border focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors ${
-                              isFilled
-                                ? hasExisting
-                                  ? 'border-green-300 bg-green-50 text-green-700'
-                                  : 'border-green-400 bg-green-50 text-green-700'
-                                : 'border-slate-200 text-slate-700'
-                            }`}
-                          />
-                          <span className="text-slate-300 font-light text-sm">×</span>
-                          <input
-                            type="number"
-                            inputMode="numeric"
-                            min={0}
-                            max={20}
-                            value={s.away}
-                            onChange={(e) => setScore(match.id, 'away', e.target.value)}
-                            placeholder="–"
-                            className={`w-9 h-9 text-center rounded-lg text-sm font-bold border focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors ${
-                              isFilled
-                                ? hasExisting
-                                  ? 'border-green-300 bg-green-50 text-green-700'
-                                  : 'border-green-400 bg-green-50 text-green-700'
-                                : 'border-slate-200 text-slate-700'
-                            }`}
-                          />
-                        </>
->>>>>>> e3b7ad5b26bcfd6278dde896a0aa655ff2ec26b9
                       ) : (
                         <Lock size={13} className="text-slate-400" />
                       )}
