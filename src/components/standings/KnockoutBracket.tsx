@@ -203,7 +203,7 @@ export function KnockoutBracket() {
   const phases = KNOCKOUT_PHASES.map((phase, i) => ({
     ...phase,
     matches: results[i].data ?? [],
-  })).filter((p) => p.matches.length > 0);
+  })).filter((p) => p.matches.some((m) => m.homeTeam !== null || m.awayTeam !== null));
 
   if (phases.length === 0) {
     return (
