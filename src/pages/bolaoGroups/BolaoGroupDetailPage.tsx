@@ -6,8 +6,9 @@ import { ArrowLeft, LogOut, Trash2, Loader2, CheckCircle, X, Clock, Zap } from '
 import { motion, AnimatePresence } from 'framer-motion';
 import { bolaoGroupsApi } from '../../api/bolaoGroups';
 import { groupsApi } from '../../api/groups';
+import { matchesApi } from '../../api/matches';
 import { predictionsApi } from '../../api/predictions';
-import { queryKeys, MemberRole, MatchStatus, MemberStatus } from '../../types/api';
+import { queryKeys, MemberRole, MatchPhase, MatchStatus, MemberStatus } from '../../types/api';
 import { useAuthStore } from '../../store/authStore';
 import { useGroupStore } from '../../store/groupStore';
 import { RankingRow } from '../../components/ranking/RankingRow';
@@ -92,6 +93,13 @@ export function BolaoGroupDetailPage() {
     enabled: tab === 'matches',
   });
 
+  const { data: round32Matches } = useQuery({
+    queryKey: ['matches', 'phase', MatchPhase.RoundOf32],
+    queryFn: () => matchesApi.byPhase(MatchPhase.RoundOf32),
+    staleTime: 5 * 60_000,
+    enabled: tab === 'matches',
+  });
+
   const { data: predictions } = useQuery({
     queryKey: queryKeys.predictions(id!),
     queryFn: () => predictionsApi.list(id!),
@@ -108,6 +116,14 @@ export function BolaoGroupDetailPage() {
   const finishedMatches = allMatches
     .filter((m) => m.status === MatchStatus.Finished)
     .sort((a, b) => new Date(b.matchDate).getTime() - new Date(a.matchDate).getTime());
+
+  const round32Upcoming = (round32Matches ?? [])
+    .filter((m) => m.status === MatchStatus.Scheduled || m.status === MatchStatus.InProgress)
+    .sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime());
+  const round32Finished = (round32Matches ?? [])
+    .filter((m) => m.status === MatchStatus.Finished)
+    .sort((a, b) => new Date(b.matchDate).getTime() - new Date(a.matchDate).getTime());
+  const hasRound32 = round32Upcoming.length > 0 || round32Finished.length > 0;
 
   const isAdmin = group?.myRole === MemberRole.Admin;
 
@@ -281,6 +297,40 @@ export function BolaoGroupDetailPage() {
               <ArrowLeft size={16} className="rotate-180 opacity-70" />
             </motion.button>
 
+            {/* Rodada 32 */}
+            {hasRound32 && (
+              <section className="space-y-2">
+                <div className="flex items-center justify-between px-1">
+                  <p className="text-xs font-bold text-red-600 uppercase tracking-wider">⚔️ Rodada 32</p>
+                  {round32Finished.length > 0 && round32Upcoming.length === 0 && (
+                    <span className="text-[10px] font-semibold text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
+                      Concluída
+                    </span>
+                  )}
+                  {round32Upcoming.length > 0 && (
+                    <span className="text-[10px] font-medium text-slate-400">
+                      {round32Finished.length}/{(round32Matches ?? []).length} encerrados
+                    </span>
+                  )}
+                </div>
+                {round32Upcoming.map((m) => (
+                  <MatchCard
+                    key={m.id}
+                    match={m}
+                    prediction={predictionMap.get(m.id)}
+                  />
+                ))}
+                {round32Finished.map((m) => (
+                  <MatchCard
+                    key={m.id}
+                    match={m}
+                    prediction={predictionMap.get(m.id)}
+                  />
+                ))}
+              </section>
+            )}
+
+            {/* Fase de grupos */}
             {scheduledMatches.length > 0 && (
               <section className="space-y-2">
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">Próximos jogos</p>
@@ -305,7 +355,7 @@ export function BolaoGroupDetailPage() {
                 ))}
               </section>
             )}
-            {scheduledMatches.length === 0 && finishedMatches.length === 0 && (
+            {!hasRound32 && scheduledMatches.length === 0 && finishedMatches.length === 0 && (
               <EmptyState emoji="⚽" title="Nenhum jogo disponível" subtitle="Os jogos aparecerão aqui em breve." />
             )}
           </motion.div>
