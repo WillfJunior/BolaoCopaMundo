@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { X, AlertCircle, Clock, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { bolaoGroupsApi } from '../../api/bolaoGroups';
-import { queryKeys } from '../../types/api';
+import { predictionsApi } from '../../api/predictions';
+import { queryKeys, MatchStatus } from '../../types/api';
 import { UserAvatar } from '../ui/UserAvatar';
 import { getImageUrl, formatMatchDate } from '../../utils/formatters';
 import { cn } from '../../utils/cn';
@@ -24,6 +25,7 @@ export function MemberPredictionsModal({
     queryKey: queryKeys.memberPredictions(groupId, memberId),
     queryFn: () => bolaoGroupsApi.memberPredictions(groupId, memberId),
     enabled: isOpen && !!groupId && !!memberId,
+    refetchInterval: 10_000,
   });
 
   return (
@@ -62,7 +64,11 @@ export function MemberPredictionsModal({
                     <p className="text-sm font-semibold text-slate-800 truncate">
                       {data?.memberName}
                     </p>
-                    <p className="text-xs text-slate-400">Palpite para o próximo jogo</p>
+                    <p className="text-xs text-slate-400">
+                      {data?.prediction.matchStatus === 'InProgress'
+                        ? 'Palpite do jogo ao vivo'
+                        : 'Palpite para o próximo jogo'}
+                    </p>
                   </div>
                 </div>
                 <button
